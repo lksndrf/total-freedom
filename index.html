@@ -512,7 +512,14 @@ body::after {
     margin-right: 4px;
     margin-bottom: 4px;
   }
-
+#back-btn {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 14px !important;   /* тут двигаешь выше/ниже */
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 10000 !important;
+}
     .page {
     align-items: stretch;
     padding-top: 230px;      /* было 260 — поджали, чтобы больше головы орла было видно */
@@ -2236,15 +2243,13 @@ document.head.appendChild(style);
  * Настройки
  */
 const SCROLL_OFFSET = 250;   // отступ сверху, чтобы блок не лез под шапку
-const BTN_MARGIN_X  = 24;    // отступ кнопки вправо от блока (можешь менять)
-const BTN_OFFSET_Y  = 0;     // дополнительный вертикальный сдвиг, если захочешь
+const BTN_MARGIN_X  = 24;    // отступ кнопки вправо от блока
+const BTN_OFFSET_Y  = 0;     // доп. вертикальный сдвиг
 
 const backBtn = document.getElementById("back-btn");
-
-// в стеке храним: позицию скролла и позицию кнопки (top/left)
 const jumpHistory = [];
 
-// по умолчанию кнопку "Вернуться" прячем
+// по умолчанию прячем
 backBtn.style.display = "none";
 
 document.addEventListener("click", function (e) {
@@ -2258,57 +2263,46 @@ document.addEventListener("click", function (e) {
   const target = document.getElementById(targetId);
   if (!target) return;
 
-  // не даём браузеру прыгать сам
   e.preventDefault();
 
-  const scrollEl   = document.scrollingElement || document.documentElement;
-  const currentY   = scrollEl.scrollTop;
-  const currentTop = backBtn.style.top  || "";
-  const currentLeft= backBtn.style.left || "";
+  const isMobile = window.innerWidth <= 1025;
+  const scrollEl = document.scrollingElement || document.documentElement;
 
-  // сохраняем ТЕКУЩУЮ позицию и положение кнопки
+  const currentY    = scrollEl.scrollTop;
+  const currentTop  = backBtn.style.top  || "";
+  const currentLeft = backBtn.style.left || "";
+
+  // сохраняем позицию ДО прыжка
   jumpHistory.push({ y: currentY, top: currentTop, left: currentLeft });
 
-  // верх и левый край блока в координатах документа
-  const rect        = target.getBoundingClientRect();
-  const absoluteTop = currentY + rect.top;
-  const absoluteLeft= rect.left + (window.scrollX || window.pageXOffset);
+  // скролл к секции
+  const rect = target.getBoundingClientRect();
+  const absoluteTop  = currentY + rect.top;
+  const absoluteLeft = rect.left + (window.scrollX || window.pageXOffset);
 
-  // скроллим так, чтобы блок оказался чуть ниже шапки — ПЛАВНО
   scrollEl.scrollTo({
     top: absoluteTop - SCROLL_OFFSET,
     behavior: "smooth"
   });
 
-    // показываем кнопку, чтобы корректно измерить её высоту
+  // показываем кнопку
   backBtn.style.display = "block";
-  const btnHeight = backBtn.offsetHeight || 0;
-  const btnWidth  = backBtn.offsetWidth  || 0;
 
-  const isMobile = window.innerWidth <= 1025;
-
-  let btnTop, btnLeft;
-
+  // МОБИЛКА: ничего не позиционируем — CSS fixed снизу сделает своё
   if (isMobile) {
-    // На мобилке: кнопка ПОД блоком, по центру экрана
-    const TAIL_H = 60;      
-const BTN_LIFT = 12;   
-
-btnTop = absoluteTop + rect.height - (TAIL_H - BTN_LIFT);
-
-    btnLeft =
-      (window.scrollX || window.pageXOffset) +
-      (window.innerWidth - btnWidth) / 2;
-  } else {
-    // На десктопе оставляем старое поведение — справа от блока
-    btnTop = absoluteTop + rect.height / 2 - btnHeight / 2 + BTN_OFFSET_Y;
-    btnLeft = absoluteLeft + rect.width + BTN_MARGIN_X;
+    return;
   }
 
-  backBtn.style.top  = btnTop  + "px";
+  // ДЕСКТОП: позиционируем справа от блока
+  const btnHeight = backBtn.offsetHeight || 0;
+
+  const btnTop  = absoluteTop + rect.height / 2 - btnHeight / 2 + BTN_OFFSET_Y;
+  const btnLeft = absoluteLeft + rect.width + BTN_MARGIN_X;
+
+  backBtn.style.top  = btnTop + "px";
   backBtn.style.left = btnLeft + "px";
 
-  // обновляем hash в адресной строке (без резкого прыжка)
+  // обновляем hash
   if (history.pushState) {
     history.pushState(null, "", hash);
   } else {
@@ -2316,26 +2310,24 @@ btnTop = absoluteTop + rect.height - (TAIL_H - BTN_LIFT);
   }
 });
 
-/**
- * Кнопка "Вернуться"
- */
 backBtn.addEventListener("click", function () {
   if (!jumpHistory.length) {
     backBtn.style.display = "none";
     return;
   }
 
+  const isMobile = window.innerWidth <= 1025;
   const scrollEl = document.scrollingElement || document.documentElement;
   const { y, top, left } = jumpHistory.pop();
 
-  // плавный возврат
-  scrollEl.scrollTo({
-    top: y,
-    behavior: "smooth"
-  });
+  scrollEl.scrollTo({ top: y, behavior: "smooth" });
 
-  if (top)  backBtn.style.top  = top;
-  if (left) backBtn.style.left = left;
+  // ВОТ ЭТО И БЫЛ “3-й пункт”:
+  // на мобилке НЕ трогаем top/left (потому что fixed снизу)
+  if (!isMobile) {
+    if (top)  backBtn.style.top  = top;
+    if (left) backBtn.style.left = left;
+  }
 
   if (!jumpHistory.length) {
     backBtn.style.display = "none";
