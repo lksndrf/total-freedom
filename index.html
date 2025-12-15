@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Тотальная свобода — Практическое руководство по подготовке к встрече с бесконечностью (окончательному путешествию)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <link
+  href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Spectral:wght@300;400;500&display=swap"
+  rel="stylesheet">
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  <style>
+:root {
+  --text-main: #f0c465;
+  --text-muted: #a5a8c0;
+  --accent-amber: #f0c465;
+  --accent-cyan: #66f5f2;
+  --card-bg: rgba(6, 7, 16, 0.96);
+  --card-border: rgba(255,255,255,0.05);
+  --card-shadow: 0 0 40px rgba(0,0,0,0.9);
+  --title-color: #e0e5f5;
+  --top-fade-height: 80px;
+  --bottom-fade-height: 60px;
+
+  /* ГЛОБАЛЬНЫЙ СКЕЙЛ ПОД ЭТАЛОН 2056×1329 */
+    --scale: max(
+    0.6,
+    min( calc(100vw / 2056px), calc(100vh / 1329px) )
+  );
+
+  /* Шрифт: НЕ уменьшаем, только увеличиваем на больших экранах */
+  --font-scale: max(1, var(--scale) * 1.1);
+}
+#back-btn {
+  position: absolute;
+ 
+  padding: 10px 20px;
+  background: #3b2c18;
+  color: var(--accent-amber);
+  cursor: pointer;
+  font-family: "Oranienbaum", serif;
+  font-size: 14px;
+  border: 1px solid rgba(240,196,101,0.4);
+  box-shadow: 0 0 14px rgba(0,0,0,0.8);
+  z-index: 9999;
+  opacity: 0.85;
+}
+#back-btn:hover {
+  background: #4a3720;
+  opacity: 1;
+}
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+}
+.eagle-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("images/eagle-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: calc(50% + 60px) -110px;
+  /* background-size будет задан через JS */
+  pointer-events: none;
+  z-index: -2;
+  /* Маска будет задана через JS */
+}
+/* БАЗА: просто тёмный фон, без орла */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Spectral", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text-main);
+
+  background-color: #02030a;                 /* основной чёрный фон */
+
+
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ССЫЛКИ-КНОПКИ В ТЕКСТЕ */
+a {
+  display: inline-block;
+  padding: 1px 6px 4px;
+  line-height: 1.3;
+  margin: 0 2px;
+  border-radius: 0;
+  background-color: #3b2c18;  
+  color: var(--accent-amber);
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease-out, transform 0.15s ease-out;
+}
+
+a:hover {
+ background-color: #4a3720;     /* ← ещё светлее при наведении */
+  transform: translateY(-1px);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;  /* ВАЖНО: поверх орла, но под контентом */
+
+  /* слева/справа чёрный → к центру прозрачность */
+  background: linear-gradient(
+    to right,
+    #02030a 0,                    /* край экрана слева */
+    #02030a 80px,                 /* первые 80px полностью чёрные */
+    rgba(2, 3, 10, 0) 200px,      /* от 80 до 200px плавно в прозрачность */
+    rgba(2, 3, 10, 0) calc(100% - 200px),
+    #02030a calc(100% - 80px),    /* последние 80px справа снова чёрные */
+    #02030a 100%
+  );
+}
+
+/* КОСМИЧЕСКИЙ ШУМ поверх орла */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+
+  background-image:
+    /* Боковая тёмная вуаль: чёрный по краям → прозрачность к центру */
+    linear-gradient(
+      to right,
+      #02030a 100,                      /* левый край — чёрный */
+      #02030a 400px,                   /* первые 15px чёрные */
+      rgba(2, 3, 10, 0) 400px,         /* к ~80px переходим в прозрачность */
+      rgba(2, 3, 10, 0) calc(100% - 400px),
+      #02030a calc(100% - 400px),      /* симметрично справа */
+      #02030a 100%
+    ),
+    /* космический шум как был */
+    radial-gradient(1px 1px at 10% 10%, rgba(255,255,255,0.35) 0, transparent 55%),
+    radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,0.18) 0, transparent 55%),
+    radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.1) 0, transparent 55%);
+
+  /* первый слой (градиент) — normal, остальные — screen, чтобы шум светился */
+  background-blend-mode: normal, screen, screen, screen;
+}
+
+/* Кольцо-вспышка */
+.flash-ring {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(240,196,101,0.18) 0,
+    rgba(240,196,101,0.08) 40%,
+    transparent 70%
+  );
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+  mix-blend-mode: screen;
+  z-index: 3;
+  animation: flashRing 0.7s ease-out forwards;
+}
+
+@keyframes flashRing {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  50% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.4);
+  }
+}
+/* Хвост только у ВНЕШНИХ блоков */
+.note-block--outer::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--bottom-fade-height);
+  border-radius: 0 0 14px 14px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 4, 12, 0.85) 0%,
+    rgba(3, 4, 12, 0) 100%
+  );
+}
+
+/* У внутренних вообще нет хвоста */
+.note-block--inner::after {
+  content: none;
+}
+/* Левое фиксированное меню */
+.sidebar {
+  position: fixed;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 210px;
+  background: rgba(6, 7, 16, 0.96);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 0 28px rgba(0,0,0,0.9);
+  padding: 14px 14px 10px;
+  z-index: 5;
+}
+
+.sidebar-title {
+  font-family: "Oranienbaum", serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-amber);
+  margin-bottom: 4px;
+}
+
+.sidebar-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 8px 0 2px;
+  margin: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-nav li { margin-bottom: 4px; }
+
+.sidebar-nav a {
+  display: block;
+  text-decoration: none;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: all 0.16s ease-out;
+  font-family: "Oranienbaum", serif;
+}
+
+.sidebar-nav a:hover {
+  color: var(--accent-amber);
+  background: rgba(240,196,101,0.08);
+  box-shadow: 0 0 0 1px rgba(240,196,101,0.4);
+}
+
+/* Центральная область */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* базовые отступы тоже масштабируем */
+  padding: calc(40px * var(--scale))
+           calc(16px * var(--scale))
+           calc(80px * var(--scale));
+
+  /* расстояние от заголовка до начала контента — ключевое */
+  padding-top: calc(360px * var(--scale));
+}
+
+/* ЗАГОЛОВОК — ФИКСИРОВАННЫЙ */
+.page-header {
+  position: fixed;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  text-shadow: 0 0 24px rgba(0,0,0,1);
+  z-index: 4;
+  padding: 10px 32px 16px;
+  pointer-events: none;
+}
+
+/* Тёмная аура под заголовком */
+.page-header::before {
+  content: "";
+  position: absolute;
+  inset: -24px -120px;
+  background: radial-gradient(
+      circle at 50% 0,
+      rgba(2, 3, 10, 0.97) 0,
+      rgba(2, 3, 10, 0.94) 40%,
+      rgba(2, 3, 10, 0.0) 100%
+  );
+  z-index: -1;
+}
+
+.page-title {
+  margin: 0;
+  font-family: "Oranienbaum", serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-shadow: 0 0 22px rgba(0,0,0,1), 0 0 16px rgba(240,196,101,0.5);
+  color: var(--title-color);
+  white-space: nowrap;
+
+  font-size: calc(72px * var(--font-scale)); /* НОВОЕ: размер заголовка */
+}
+
+.page-subtitle {
+  margin: calc(8px * var(--scale)) 0 0;
+  font-size: calc(18px * var(--font-scale));
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Оболочка контента */
+/* Оболочка контента */
+.content-shell {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  /* Ширина как фиксированная доля окна (≈ 43% от референса 880/2056) */
+  width: 43vw;
+  max-width: 1400px; /* безопасный потолок, чтобы на супер-широких не улетало в безумие */
+
+  padding: 0 calc(4px * var(--scale)) calc(16px * var(--scale));
+}
+
+/* Блоки-конспекты */
+.note-block {
+  background: transparent;
+  border-radius: 14px;
+  margin: 8px 0;
+  border: none;               /* ← вообще убрали рамку */
+  overflow: hidden;
+  position: relative;
+  z-index: 0;
+  transition:
+    opacity 0.12s linear,
+    transform 0.12s linear,
+    background 0.12s linear,
+    color 0.12s linear;
+}
+
+/* Обводка-градиент вокруг блока */
+.note-block::before {
+  content: none; /* ← ничего не рисуем, обводка полностью исчезает */
+}
+
+
+
+/* Хедер блока */
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+
+  background: linear-gradient(to right,
+    rgba(3, 4, 12, 0.70) 0%,   /* 70% непрозрачности — видно фон */
+    rgba(3, 4, 12, 0.82) 100%  /* чуть плотнее справа */
+  );
+
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.note-title {
+  margin: 0 0 4px 0;
+  font-family: "Oranienbaum", serif;
+  font-size: calc(26px * var(--font-scale));
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #e0e5f5;
+}
+
+.note-meta {
+  margin-top: 2px;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.note-toggle {
+  margin-left: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(240,196,101,0.6);
+  background: radial-gradient(circle at 30% 0, rgba(240,196,101,0.5), #02030a 60%);
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 0 16px rgba(0,0,0,0.9);
+  transition: all 0.15s ease-out;
+}
+
+.note-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 22px rgba(240,196,101,0.6);
+}
+
+.note-body {
+  position: relative;
+  padding: calc(18px * var(--scale))
+           calc(22px * var(--scale))
+           calc(45px * var(--scale) + 1.6em);
+  font-size: calc(22px * var(--font-scale));
+  line-height: 1.7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: none;
+}
+.note-body video {
+  max-width: 70%;
+  height: auto;
+  border-radius: 15px;
+  display: block;
+  margin: 0 auto;   /* ← ВОТ ЭТО центрирует */
+}
+
+/* Фон под текстом — сплошной */
+.note-body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: var(--bottom-fade-height); /* фон не доходит до хвоста */
+  z-index: -1;
+  background: #18181A; /* ровный коричневый фон */
+}
+
+.note-body p {
+  margin: 0 0 14px;
+
+}
+.note-body p:last-child {
+  margin-bottom: 0;
+}
+
+.note-block.collapsed .note-body { display: none; }
+.note-block.collapsed .note-header { border-bottom-color: transparent; }
+
+/* Пиллы */
+.pill {
+  display: inline-block;
+  margin-top: 6px;
+  margin-right: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(240,196,101,0.5);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-amber);
+}
+
+
+
+/* Адаптив: только десктоп */
+@media (min-width: 960px) {
+  .page-header {
+    top: 3vh;
+  }
+
+  .eagle-layer {
+    background-position: calc(50% + 60px) -8vh;
+  }
+}
+
+/* Мобилки */
+@media (max-width: 1025px) {
+  /* убираем боковые затемнения и космический шум */
+  body::before,
+  body::after {
+    display: none;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    width: min(94%, 420px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    border-top: none;
+    margin-top: 4px;
+  }
+
+  .sidebar-nav li {
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+
+    .page {
+    align-items: stretch;
+    padding-top: 230px;      /* было 260 — поджали, чтобы больше головы орла было видно */
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .page-header {
+    top: 14px;               /* шапку ближе к верху */
+    padding: 4px 8px 6px;    /* меньше внутренний отступ */
+    width: 100%;             /* растянуть по всей ширине */
+  }
+
+  .page-title {
+    white-space: nowrap;     /* стараемся держать в одну строку */
+    line-height: 1.1;
+    text-align: center;
+    letter-spacing: 0.12em;  /* поменьше расстояние между буквами */
+    font-size: 22px;         /* так «ТОТАЛЬНАЯ СВОБОДА» влезает в одну строку на 430px */
+  }
+
+  .page-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    max-width: 90%;          /* растягиваем, но оставляем чуть воздуха по краям */
+    margin: 4px auto 0;      /* центрируем подзаголовок */
+    text-align: center;
+  }
+
+  .content-shell {
+    width: 100%;
+    max-width: none;
+    padding: 0 5vw 24px;
+  }
+
+  .note-body {
+    padding: 16px 16px 24px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .note-title {
+    font-size: 20px;
+  }
+}
+/* Спойлер внутри note-body */
+.spoiler {
+  position: relative;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* Сколько показываем в свёрнутом виде (подбери под себя) */
+.spoiler.collapsed {
+  max-height: 220px; /* можно сделать 180 / 240 и т.д. */
+}
+/* полоса появляется ТОЛЬКО в collapsed */
+.spoiler.collapsed::after {
+  content: "Показать полностью";
+  display: block;
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 10px 16px 14px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: "Oranienbaum", serif;
+  color: var(--accent-amber);
+  cursor: pointer;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(24, 24, 26, 0) 0%,
+    rgba(24, 24, 26, 0.85) 50%,
+    rgba(24, 24, 26, 0.98) 100%
+  );
+  backdrop-filter: blur(3px);
+  box-shadow: 0 -6px 12px rgba(0,0,0,0.6);
+}
+/* базово — никакой полосы, никакого блюра */
+.spoiler::after {
+  content: "";
+  display: none;
+}
+
+/* В развёрнутом состоянии спойлера — убираем полосу */
+.spoiler.expanded {
+  max-height: none;
+}
+
+/* === TRANSITION: "2nd attention" === */
+:root {
+  --trip-delay: 5s;        /* поменяешь */
+  --trip-shake: 1.9s;      /* длительность дрожи */
+  --trip-implode: 0.9s;    /* длительность "разлёта/схлопа" */
+  --trip-tunnel: 5s;     /* длительность зума орла */
+}
+
+/* затемнение поверх всего (к финалу — почти чёрный) */
+.trip-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 35%,
+    rgba(0,0,0,0.10) 0%,
+    rgba(0,0,0,0.75) 35%,
+    rgba(0,0,0,0.98) 70%,
+    rgba(0,0,0,1) 100%
+  );
+  z-index: 9998;
+}
+
+/* базово ничего не происходит */
+body.trip-ready .trip-overlay { display: block; }
+
+
+/* основной “туннель сквозь текст” */
+@keyframes tripTunnelText {
+  0% {
+    opacity: 1;
+    filter: blur(2px) saturate(1.05) contrast(1.05);
+    transform: perspective(900px) translate3d(0,0,0) rotateX(0deg) scale(1);
+  }
+  25% {
+    opacity: 0.95;
+    filter: blur(4px) saturate(1.1) contrast(1.08);
+    transform: perspective(900px) translate3d(0,-10px,0) rotateX(3deg) scale(1.8);
+  }
+  55% {
+    opacity: 0.55;
+    filter: blur(10px) saturate(1.15) contrast(1.12);
+    transform: perspective(900px) translate3d(0,-26px,0) rotateX(7deg) scale(4.2);
+  }
+  80% {
+    opacity: 0.18;
+    filter: blur(18px) saturate(1.2) contrast(1.18);
+    transform: perspective(900px) translate3d(0,-48px,0) rotateX(10deg) scale(7.2);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(28px) saturate(1.25) contrast(1.2);
+    transform: perspective(900px) translate3d(0,-70px,0) rotateX(14deg) scale(11);
+  }
+}
+
+
+
+
+body.trip-recover .content-shell,
+body.trip-recover .eagle-layer,
+body.trip-recover .trip-overlay {
+  transition: transform 700ms ease, filter 700ms ease, opacity 700ms ease;
+}
+
+/* вернуть как было */
+body.trip-recover .content-shell {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+body.trip-recover .eagle-layer {
+  transform: none;
+  filter: none;
+}
+
+body.trip-recover .trip-overlay {
+  opacity: 0;
+}
+/* ===== keyframes ===== */
+
+@keyframes tripJitter {
+  0%   { transform: translate3d(0,0,0); }
+  10%  { transform: translate3d(0.6px, -0.4px, 0); }
+  20%  { transform: translate3d(-0.5px, 0.5px, 0); }
+  30%  { transform: translate3d(0.4px, 0.6px, 0); }
+  40%  { transform: translate3d(-0.7px, -0.3px, 0); }
+  50%  { transform: translate3d(0.5px, -0.6px, 0); }
+  60%  { transform: translate3d(-0.4px, 0.4px, 0); }
+  70%  { transform: translate3d(0.7px, 0.2px, 0); }
+  80%  { transform: translate3d(-0.3px, -0.6px, 0); }
+  90%  { transform: translate3d(0.2px, 0.5px, 0); }
+  100% { transform: translate3d(0,0,0); }
+}
+
+/* отдельно наращиваем blur (без тряски в нём) */
+@keyframes tripBlur {
+  0%   { filter: blur(0px) saturate(1) contrast(1); }
+  40%  { filter: blur(0.8px) saturate(1.05) contrast(1.02); }
+  70%  { filter: blur(1.8px) saturate(1.08) contrast(1.04); }
+  100% { filter: blur(3px) saturate(1.12) contrast(1.08); }
+}
+
+/* "разлёт" без кусочков: быстрое увеличение, поворот, увод и fade */
+@keyframes tripExplode {
+  0%   { opacity: 1; filter: blur(3px) saturate(1.3) contrast(1.18); transform: translate3d(0,0,0) rotate(0deg) scale(1.03); }
+  35%  { opacity: 0.75; filter: blur(6px) saturate(1.35); transform: translate3d(-12px, 8px, 0) rotate(-1.2deg) scale(1.12); }
+  70%  { opacity: 0.25; filter: blur(14px) saturate(1.4); transform: translate3d(40px, -22px, 0) rotate(2.8deg) scale(1.35); }
+  100% { opacity: 0; filter: blur(22px) saturate(1.4); transform: translate3d(-120px, 60px, 0) rotate(-6deg) scale(1.75); }
+}
+
+@keyframes eagleTunnel {
+  0%   { transform: translate3d(0,0,0) scale(1);    filter: blur(0px) saturate(1); }
+  100% { transform: translate3d(0,-120px,0) scale(14); filter: blur(4px) saturate(1.25); }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 0.65; }
+}
+
+@keyframes overlayDeepen {
+  0%   { opacity: 0.65; }
+  60%  { opacity: 0.95; }
+  100% { opacity: 1; }
+}
+
+@keyframes bodyDrift {
+  0%   { }
+  100% { }
+}
+/* === FLASH MESSAGE === */
+.trip-message {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 9999;
+}
+
+.trip-message .msg {
+  font-family: "Oranienbaum", serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+  line-height: 1.05;
+
+  /* огромный размер, адаптивно */
+  font-size: clamp(28px, 6vw, 110px);
+
+  color: rgba(240,196,101,0.95);
+  text-shadow:
+    0 0 30px rgba(240,196,101,0.35),
+    0 0 90px rgba(0,0,0,0.9);
+
+  padding: 0 6vw;
+  transform: scale(0.98);
+}
+
+/* включаем вспышку */
+body.trip-flash .trip-message {
+  animation: msgFlash 1s ease-out forwards;
+}
+
+@keyframes msgFlash {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* === HYPER WARP LAYER === */
+.warp-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;          /* под trip-overlay (9998), над фоном */
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+/* “звёзды” как точки + лёгкие лучи */
+.warp-layer::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.55) 0, transparent 60%),
+    radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.35) 0, transparent 60%),
+    radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.25) 0, transparent 60%),
+    radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.28) 0, transparent 60%),
+    radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.18) 0, transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.08) 0px,
+      rgba(255,255,255,0.0) 2px,
+      rgba(255,255,255,0.0) 18px
+    );
+  background-size: 240px 240px, 320px 320px, 420px 420px, 520px 520px, 700px 700px, 100% 100%;
+  filter: blur(0.2px);
+  transform-origin: 50% 50%;
+  transform: scale(1);
+}
+
+/* === ONE STAGE TRIP === */
+
+/* запускаем один режим */
+body.trip .trip-overlay { 
+  display: block;
+  animation: overlayTrip var(--trip-tunnel) linear forwards;
+}
+
+/* фон-орёл летит сразу */
+body.trip .eagle-layer {
+  animation: eagleTunnelFast var(--trip-tunnel) linear forwards;
+  will-change: transform, filter;
+  transform-origin: 50% 35%;
+}
+
+/* Реальный “варп” через SVG filter */
+body.trip .content-shell {
+  filter: url(#warpFilter);
+  will-change: transform, filter, opacity;
+  transform-origin: 50% 45%;
+  /* Важно: никакого translate вверх/вниз — только “в трубу” */
+  animation: vortexZoom var(--trip-tunnel) linear forwards;
+}
+
+/* Чисто радиальная “воронка” + уход в ноль */
+@keyframes vortexZoom {
+  0% {
+    opacity: 1;
+    transform: perspective(1100px) scale(1) rotateX(0deg);
+  }
+  18% {
+    opacity: 0.98;
+    transform: perspective(1100px) scale(1.25) rotateX(1deg);
+  }
+  45% {
+    opacity: 0.75;
+    transform: perspective(1100px) scale(3.6) rotateX(4deg);
+  }
+  75% {
+    opacity: 0.25;
+    transform: perspective(1100px) scale(8.8) rotateX(8deg);
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(1100px) scale(16) rotateX(10deg);
+  }
+}
+
+/* Чтобы “полёт” был именно центровой (похоже на окно корабля) */
+body.trip .warp-layer { opacity: 1; }
+body.trip .warp-layer::before { animation: warpFlyFast var(--trip-tunnel) linear forwards; }
+
+body.trip .eagle-layer {
+  animation: eagleTunnelFast var(--trip-tunnel) linear forwards;
+  transform-origin: 50% 45%;
+}
+
+/* На всякий: в recover фильтр должен отлипнуть */
+body.trip-recover .content-shell { filter: none !important; }
+/* затемнение: растёт вместе с полётом */
+@keyframes overlayTrip {
+  0%   { opacity: 0.0; }
+  20%  { opacity: 0.35; }
+  60%  { opacity: 0.85; }
+  100% { opacity: 1; }
+}
+
+/* СКОРОСТЬ х2 по ощущениям: финальный масштаб сильно больше */
+@keyframes eagleTunnelFast {
+  0%   { transform: translate3d(0,0,0) scale(1);      filter: blur(0px) saturate(1); }
+  20%  { transform: translate3d(0,-10px,0) scale(2.2); filter: blur(0.7px) saturate(1.05); }
+  55%  { transform: translate3d(0,-40px,0) scale(6.0); filter: blur(2.0px) saturate(1.12); }
+  100% { transform: translate3d(0,-140px,0) scale(18); filter: blur(4.5px) saturate(1.25); }
+}
+
+/* текст “втягивает” в воронку, без ухода вниз */
+@keyframes tripTunnelTextFast {
+  0% {
+    opacity: 1;
+    filter: blur(0px) saturate(1.0) contrast(1.0);
+    transform: perspective(1000px) translate3d(0,0,0) rotateX(0deg) scale(1);
+  }
+  20% {
+    opacity: 0.98;
+    filter: blur(1px) saturate(1.05) contrast(1.05);
+    transform: perspective(1000px) translate3d(0,-6px,0) rotateX(2deg) scale(1.5);
+  }
+  45% {
+    opacity: 0.75;
+    filter: blur(6px) saturate(1.10) contrast(1.10);
+    transform: perspective(1000px) translate3d(0,-16px,0) rotateX(6deg) scale(4.8);
+  }
+  70% {
+    opacity: 0.30;
+    filter: blur(16px) saturate(1.15) contrast(1.18);
+    transform: perspective(1000px) translate3d(0,-30px,0) rotateX(10deg) scale(10);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(30px) saturate(1.20) contrast(1.25);
+    transform: perspective(1000px) translate3d(0,-40px,0) rotateX(14deg) scale(18);
+  }
+}
+
+/* звёзды: тоже сильнее */
+@keyframes warpFlyFast {
+  0% {
+    transform: scale(1);
+    filter: blur(0.2px);
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 50% 50%;
+  }
+  30% {
+    transform: scale(3.4);
+    filter: blur(1.0px);
+    background-position: 420px 980px, -680px 1100px, 880px -620px, -1020px -740px, 560px 480px, 50% 50%;
+  }
+  65% {
+    transform: scale(9.0);
+    filter: blur(2.0px);
+    background-position: 1400px 3600px, -2400px 4200px, 3000px -2150px, -3400px -2500px, 1900px 1500px, 50% 50%;
+  }
+  100% {
+    transform: scale(18);
+    filter: blur(3.0px);
+    background-position: 3000px 8200px, -5200px 9400px, 6800px -5000px, -7600px -5600px, 4300px 3400px, 50% 50%;
+  }
+}
+
+body.trip-stage2 .warp-layer::before {
+  animation: warpFly var(--trip-tunnel) linear forwards;
+  will-change: transform, filter, background-position;
+}
+
+@keyframes warpFly {
+  0% {
+    transform: scale(1);
+    filter: blur(0.2px);
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 50% 50%;
+  }
+  35% {
+    transform: scale(2.6);
+    filter: blur(0.9px);
+    background-position: 220px 520px, -340px 610px, 420px -300px, -520px -380px, 300px 240px, 50% 50%;
+  }
+  70% {
+    transform: scale(6.5);
+    filter: blur(1.7px);
+    background-position: 780px 1900px, -1200px 2200px, 1500px -1050px, -1750px -1250px, 900px 720px, 50% 50%;
+  }
+  100% {
+    transform: scale(13);
+    filter: blur(2.6px);
+    background-position: 1700px 4200px, -2600px 5000px, 3200px -2300px, -3800px -2800px, 2100px 1600px, 50% 50%;
+  }
+}
+</style>
+</head>
+<body>
+  <div id="back-btn">Вернуться</div>
+<div class="eagle-layer"></div>
+<!-- SVG filter defs for true warp/distortion -->
+<svg width="0" height="0" style="position:absolute; left:-9999px; top:-9999px;">
+  <filter id="warpFilter" x="-30%" y="-30%" width="160%" height="160%"
+          color-interpolation-filters="sRGB">
+    <feTurbulence id="warpTurb"
+      type="fractalNoise"
+      baseFrequency="0.012"
+      numOctaves="2"
+      seed="2"
+      result="noise"/>
+    <feDisplacementMap id="warpDisp"
+      in="SourceGraphic"
+      in2="noise"
+      scale="0"
+      xChannelSelector="R"
+      yChannelSelector="G"
+      result="warped"/>
+    <feGaussianBlur id="warpBlur" in="warped" stdDeviation="0" result="blurred"/>
+    <feColorMatrix in="blurred" type="matrix"
+      values="
+        1.05 0    0    0 0
+        0    1.05 0    0 0
+        0    0    1.05 0 0
+        0    0    0    1 0" />
+  </filter>
+</svg>
+  <div class="trip-overlay"></div>
+  <div class="warp-layer"></div>
+<div class="trip-message"><div class="msg" id="tripMsg"></div></div>
+  <div class="page">
+    <!-- ФИКСИРОВАННЫЙ ЗАГОЛОВОК -->
+    <header class="page-header">
+  <h1 class="page-title">ТОТАЛЬНАЯ СВОБОДА</h1>
+  <div class="page-subtitle">
+    Практическое руководство по подготовке к встрече с бесконечностью (окончательному путешествию)
+  </div>
+</header>
+
+    <!-- СКРОЛЛЯЩИЙСЯ КОНТЕНТ -->
+    <div class="content-shell">
+
+      <section class="note-block" id="start">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Что происходит?</h2>
+            
+          </div>
+          <button class="note-toggle" aria-expanded="true">−</button>
+        </div>
+        <div class="note-body">
+          <p>
+            Каждому существу <a href="#eagle">Орёл</a> даровал силу увидеть проход к свободе и пройти через него, чтобы сохранить <a href="#cocoon">осознание</a> на миллиарды лет. </p>
+           <p>В случае же обычного умирания, <a href="#cocoon">осознание</a> неизбежно попадает к <a href="#eagle">Орлу</a>, разрывается, пожирается им и уничтожается бесследно, окончательно. <a href="#eagle">Орёл</a> поедает опыт нашей жизни, <a href="#cocoon">осознание</a> погибает "заодно".</p>
+            <p>Единственный способ проскользнуть мимо <a href="#eagle">Орла</a> - прожить <a href="#impeccability">безупречную</a> жизнь, выбрав <a href = "#warrior_path">путь воина</a>, <a href = "#fire_from_within">сгорев огнем изнутри</a>, уйти в <a href="#attentions">третье внимание</a> (окончательное путешествие).</p>
+          
+          
+        </div>
+      </section>
+      <section class="note-block" id="do_it">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Что делать?</h2>
+            
+          </div>
+          <button class="note-toggle" aria-expanded="true">−</button>
+        </div>
+        <div class="note-body">
+          <p>
+            Нужно повышать уровень <a href="#cocoon">осознания</a>.
+            Повышение <a href="#cocoon">осознания</a> — это расширение диапазона возможных позиций <a href="#assemblage_point">точки сборки</a> и способность удерживать её в новых положениях за счёт накопленной <a href="#energy">энергии</a> и <a href="#personal_power">личной силы.</a></p>
+            <p>Сдвиг <a href="#assemblage_point">точки сборки</a>, её удержание и накопление <a href="#personal_power">личной силы</a> - взаимосвязанные элементы учения, для каждого из которых существуют собственные практики и дисциплины.</p>
+            Основные:
+            <ul><li><a href="#dreaming_art">Искусство сновидения</a></li>
+            <li><a href="#stalking">Искусство сталкинга</a></li>
+            <li><a href="#recapitulation">Перепросмотр</a></li>
+          </ul>
+          
+          
+        </div>
+      </section>
+<section class="note-block" id="warrior_path">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Путь воина</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+    <p>
+      <b>Путь воина — это путь</b> <a href="#impeccability">безупречности</a>. Жизнь, при которой человек не расходует
+      <a href="#energy">энергию</a> впустую, а накапливает её для повышения <a href="#cocoon">осознания</a>.
+    </p>
+
+    <p>
+      Настроение воина — ясность ума и отрешённость.
+      В настроении воина полный самоконтроль и абсолютное самообладание соединяются с полным самоотречением.
+    </p>
+
+   
+
+    <p>Воин приводит в порядок свой <a href="#tonal_nagual">тональ</a>, чтобы освободить <a href="#attentions">первое внимание</a>,
+ослабить фиксацию <a href="#assemblage_point">точки сборки</a>
+и создать устойчивую основу для <a href="#assemblage_point">второго и третьего внимания.</a>:</p>
+
+    <ul>
+      <li>избавляется от <a href="#self_importance">чувства собственной важности;</a></li>
+      <li>использует <a href="#death_adviser">смерть как советчика;</a></li>
+      <li><a href="#responsibility">берёт ответственность</a> за каждое своё действие;</li>
+      <li><a href="#internal_dialogue">останавливает внутренний диалог;</a></li>
+      <li>стирает <a href="#personal_history">личную историю;</a></li>
+      <li><a href="#unavailable">становится недоступным;</a></li>
+      <li>практикует <a href="#not_doing">не-делание.</a></li>
+      <li>уничтожает  <a href="#destroy_routines">распорядки</a></li>
+    </ul>
+Воин пустой (на самом деле полный, но внутри не личность, а часть Вселенной), <a href="#human_form">бесформенный</a> и <a href="#alert_warrior">алертный</a>.
+
+<p>
+   У воина могут быть и чувства, но эти чувства не от личности,
+      а от глубин самой Вселенной.
+    </p>
+  </div>
+</section>
+<section class="note-block" id="responsibility">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Принять ответственность</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+    <p>Если что-то решил (не важно что) нужно действовать без сомнений и сожалений. Без поиска причин неудачи или победы, без поиска виноватых, перестать быть жертвой. Это твои решения, никто кроме тебя не является причиной происходящего.
+      </p>
+    Полезно разобраться в том чем является и как управлять <a href="#intent">намерением</a>.
+  </div>
+</section>
+<section class="note-block" id="death_adviser">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Смерть-советчик</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+    <p>Использование смерти как советчика во всем, что ты делаешь.</p>
+    Смерть всегда стоит за левым плечом (условно, а может быть и буквально). Времени нет ни у кого из нас.
+    Каждое решение и действие должно быть таким будто это последнее решение и действие на Земле. Осознание неизбежной смерти направляет выбор и действие.
+    <br>Нет времени на <a href="#self_importance">ЧСВ</a> и <a href="#no_pity">жалость к себе</a>, время только для действий.
+  </div>
+</section>
+<section class="note-block" id="personal_history">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Стирание личной истории</h2>
+    </div>
+    
+  </div>
+
+  <div class="note-body">
+    <b>Личная история</b> позволяет окружающим и самому себе фиксировать образ самого себя, своего "я". Действуешь, опираясь на ожидания других.
+    Стирание личной истории удаляет привязки, которые удерживают человека в одном и том же описании мира.
+    Стирая <b>личную историю</b>, воин перестаёт быть предсказуемым — для других и для самого себя.
+    Влияет на подвижность <a href="#assemblage_point">точки сборки</a>.
+    <p>
+
+
+Чтобы стирание <b>личной истории</b> не вызвало неустойчивость, двойственность относительно себя и своих поступков, параллельно нужно избавиться от <a href="#self_importance">ЧСВ</a>.
+</p>
+
+  </div>
+</section>
+<section class="note-block" id="unavailable">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Быть недоступным</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+    Быть <b>недоступным</b> — значит не растрачивать <a href="#energy">энергию</a>, не вовлекаться в чужие и собственные сценарии, не поддерживать фиксированный образ себя и тем самым сохранять свободу и подвижность <a href="#assemblage_point">точки сборки</a>.
+    <p>Быть недоступным - избегать истощения - бережно относиться к себе и другим.</p>
+    Не использовать до истощения отношения между другими людьми и миром. Брать столько сколько нужно.
+  </div>
+</section>
+<section class="note-block" id="not_doing">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Не-делание</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+    <b>Не-делание</b> — это намеренное нарушение привычных способов <a href="#perception">восприятия</a> и действий, направленных на ослабление фиксации <a href="#tonal_nagual">тоналя</a> и сдвига <a href="#assemblage_point">точки сборки</a>.
+    <p><b>Не-делание</b> нужно чтоб остановить мир (коллапс интерпретаций <a href="#assemblage_point">тоналя</a>). </p>
+    <p><a href="#contemplation">Созерцание</a> — один из способов <b>не-делания</b>, при котором нарушается привычное <a href="#perception">восприятие</a> объектов (воспринимаешь тени, а не объект, меняешь размер и т.д.)
+
+      </p>
+      Другой пример <b>не-делания</b> - хождение задом наперёд.
+   
+  </div>
+</section>
+<section class="note-block" id="destroy_routines">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Уничтожение распорядков (рутины)</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+   <p><b>Уничтожение распорядков</b> — это разрушение повторяющихся моделей поведения, делающих человека предсказуемым и энергетически уязвимым.
+    Обедать, гулять, страдать, срать по расписанию - плохо. 
+    Охотник знает распорядки своей добычи. Есть распорядок - ты добыча.
+    Рутина фиксирует <a href="#assemblage_point">точку сборки</a>. Нужно быть непредсказуемым и <a href="#unavailable">недоступным</a>.
+      </p>
+   
+  </div>
+</section>
+<section class="note-block" id="internal_dialogue">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Остановка внутреннего диалога</h2>
+    </div>
+
+  </div>
+
+  <div class="note-body">
+    Производя <b>внутренний диалог</b> мы постоянно создаем и описываем мир.
+    Ключевая техника, открывающая путь ко <a href="#attentions">второму мниманию</a> - <b>остановка внутреннего диалога</b>.
+    Остановка внутреннего диалога останавливает мир (<a href="#perception">восприятие</a>): <a href="#tonal_nagual">тональ</a> утрачивает контроль, управление переходит к <a href="#tonal_nagual">нагвалю</a>, и <a href="#perception">восприятие</a> <a href="#attentions">первого внимания</a> сменяется <a href="#attentions">вторым</a>.
+    <p>Один из способов остановки внутреннего диалога - правильный способ ходьбы:</p>
+<p>Поджимаем пальцы, привлекая <a href="#attentions">внимание</a> <a href="#tonal_nagual">тоналя</a> к рукам. Затем без фиксации, глядя на любую точку перед собой от ступней до чуть выше горизонта, мы затопляем (переполянем) свой <a href="#tonal_nagual">тональ</a> информацией. <a href="#tonal_nagual">Тональ</a> без своих отношений с глазу на глаз с элементами собственного описания не способен разговаривать сам с собой и таким образом он становится тихим.
+Положение пальцев значения не имеет, нужно просто привлечь внимание к рукам, сжимая пальцы непривычным способом. В качестве альтернативы сжатию пальцев рекомендуют зажимать между ними камешки размером и формой пальцев.
+Важно то, что несфокусированные глаза замечают огромное количество штрихов мира, не получая о них ясного представляения.
+</p>
+     </p>
+     <p>Остановкой <b>внутреннего диалога</b> достигается <a href="#silent_knowledge">безмолвное знание</a>.
+  </div>
+</section>
+<section class="note-block" id="tonal_nagual">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Тональ и нагваль</h2>
+    </div>
+    <button class="note-toggle" aria-expanded="true">−</button>
+  </div>
+
+  <div class="note-body">
+   <p><b>Тональ</b> - все что мы знаем и способны видеть глазами.
+<b>Тональ</b> начинается с рождения и заканчивается смертью. Функция <b>тоналя</b> - судить, оценивать и свидетельствовать. В этом смысле <b>тональ</b> создает мир. Противоположность - оставнока мира (остановка интерпретаций).
+У <b>тоналя</b> 2 стороны:<ul>
+ <li>Внешняя сторона связана с действием (беспорядочная сторона).</li>
+ <li>Внутренняя сторона - решения и суждения. Более мягкая сторона и более сложная. </li></ul>
+У правильного <b>тоналя</b> оба уровня в равновесии.</p>
+<p><b>Нагваль</b> - часть нас, для которой нет описания, ни слов, ни названий, ни чувства, ни знаний.</p><div class="spoiler">
+<p>В момент рождения мы являемся целиком <b>нагвалем</b>. Потом <b>тональ</b> постепенно, но полностью заменяет <b>нагваль</b> и остается лишь <b>тональ</b>.
+<b>Нагваль</b> это пара <b>тоналю</b>. <b>Нагваль</b> не кончается никогда, даже со смертью. <b>Нагваль</b> ответственнен за творчество.</p>
+<p>Чтобы <b>тональ</b> стал свободным и текучим, нужно избавиться от <a href="#self_importance">ЧСВ</a> и перестать потокать себе. Тогда <b>тональ</b> легче сжать, чтоб <b>нагваль</b> взял верх и пробудился.</p>
+<p>Мы замещаем значения старых элементов, меняем фасад <b>тоналя</b>. Например при удалении <a href="#self_importance">ЧСВ</a>, жалость к себе уже не работает, ты просто этого не можешь испытать. Она никуда не делась, просто не проявляется.
+<a href="#death_adviser">Смерть-советчик</a> заменяет советчика <a href="#no_pity">«жалость к себе»</a>.
+
+На первый план фасада острова выходят другие качества и замещают прошлые. Все эти техники приводят к <b>нагвалю</b>.
+</p>
+<b>Нагваль</b> выпускать на поверхность нужно осторожно, чтобы не повредить <b>тоналю</b>. Иначе можно умереть. Только путем усиления <b>тоналя</b> может появиться нагваль. Это усиление - <a href="#personal_power">личная сила.</a> <a href="#will">Воля</a> - дорога к нагвалю.
+<p>Остров <b>тональ</b> создан нашим <a href="#perception">восприятием</a>. Все элементы в <b>тонале</b> формируют картину мира. </p><p>Все эти элементы должны быть перемещены на одну сторону - сторону разума. Это и есть чистка острова <b>тональ</b>.
+Учитель заставляет быть максимально разумным, а потом сталкивает с ситуациями, где разум бессилен.
+Тогда другая половина, которая очистилась, может быть заполнена <a href="#will">волей</a>. Теперь одна половина - абсолютный центр разума, другая - абсолютный центр <a href="#will">воли</a> (нагваль).</p>
+</div>
+  </div>
+</section>
+<section class="note-block" id="cocoon">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Светящийся кокон, большие, малые эманации</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p id="great_emonations">
+          Вселенная пронизана <b>большими (внешними) эманациями</b>, энергетическими линииями, источник которых - <a href="#eagle">Орёл</a>.</p>
+         
+          <p>
+          <b>Эманации</b> имеют свое собственное самосознание.</p>
+          <p id="internal_emonations"> У человека есть свои <b>внутренние эманации</b>, которые образуют <b>кокон</b> - светящееся яйцо.
+На самом деле никакие не свои, а те же эманации Орла, временно принявшие человечесвкую форму.
+          </p>
+          <p> <b>Осознание</b> - светащаяся оболочка этого кокона. </p>
+            <p><a href="#attentions"><b>Внимание</b></a> - продукт осознания. В этом смысле осознание - сырье из которого делается продукт (<a href="#attentions">внимание</a>).</p>
+<p id="perception"><b>Восприятие</b> - следствие осознания. Возникает когда внутренние эманации наслаиваются на большие (внешние), в этом месте <a href="#assemblage_point">точка сборки </a>собирает восприятие.
+          </p> <video autoplay loop muted playsinline>
+  <source src="images/cocoon.MP4" type="video/mp4">
+</video>
+          Светимость осознания большинства людей съедена при жизни почти полностью <a href="#flyers">летунами</a>.
+Мир существует только пока есть сознание, способное собирать эманации в структуру. Без <a href="#assemblage_point">точек сборки</a> других существ есть только эманации, но нет мира.
+На осознание постоянно воздействует так называемая накатывающая сила внешнего намерения, которую можно использовать для смещения точки сборки.
+
+        </div>
+      </section>
+      <section class="note-block" id="energy_body">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Энергетическое тело, дубль</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+          <b>Энергетическое тело (дубль)</b> — это <a href="#cocoon">осознание</a>, освободившееся от фиксации на физическом теле и организованное в самостоятельную форму.</p>
+          <b>Энергетическое тело</b>, благодаря практике <a href="#dreaming_art">сновидения</a> можно уплотнить, воссоздав внешне полную физическую копию себя. Это другая конфигурация того же <a href="#cocoon">сознания</a>.
+          С помощью несгибаемого <a href="#intent">намерения</a> <a href="#assemblage_point">точка сборки</a> фиксируется в <a href="#dream_position">позиции сновидения</a>. Она пребывает там так долго, что перетягивает все эманации внутри <a href="#cocoon">кокона</a>. Это и есть путешествие дубля (тело сновидения).
+
+
+
+        </div>
+      </section>
+<section class="note-block" id="energy">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Энергия</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+            <b>Энергия</b> — это доступная светимость <a href="#cocoon">осознания</a> внутри человеческого <a href="#cocoon">кокона</a>,
+высвобождаемая через <a href="#impeccability">безупречность</a> и <a href="#recapitulation">перепросмотр</a>
+и необходимая для смещения и удержания <a href="#assemblage_point">точки сборки.</a>
+          </p>
+
+
+
+        </div>
+      </section>
+<section class="note-block" id="assemblage_point">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Точка сборки</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+          <b>Точка сборки</b> - светящаяся точка, размером с тенисный шарик на задней поверхности светящегося <a href="#cocoon">кокона</a> на уровне лопаток, на расстоянии вытянутой руки.</p>
+          <p>Точка сборки излучает свечение, группируя <a href="#internal_emonations">внутренние эманации</a> в пучки, которые настраиваются на соответствующие им <a href="#great_emonations">большие эманации</a> (внешние), тоже собранные в пучки.</p>
+
+<ul><li><a href="#attentions">1 внимание</a> - точка сборки на поверхности <a href="#cocoon">кокона</a> в пределах <a href="#people_line">человеческой полосы</a>. Это обычное <a href="#perception">восприятие</a>.</li>
+<li><a href="#attentions">2 внимание</a> - точка сборки в глубине <a href="#cocoon">кокона</a> в пределах <a href="#people_line">человеческой полосы</a>. Возможность непосредственно видеть энергию вселенной.</li>
+<li><a href="#attentions">3 внимание</a> - загорается вся <a href="#people_line">человеческая полоса</a>, а не точка. <a href="#cocoon">Кокон</a> <a href="#fire_from_within"> сгорает огнем изнутри. </a></li></ul>
+<p>
+Начать стоит с того, чтобы сделать точку сборки подвижной. Для этого практикуют данные <a href="#warrior_path">техники</a>. Не по выходынм, пятницам или каждую четную неделю месяца, а каждый день, постепенно вводя их в свою жизнь.
+</p>
+Точка сборки может двигаться или смещаться. Это разное.
+<p><b>Движение точки сборки</b> - перемещение такое глубокое (наружу), что может сдвинуться на другие полосы <a href="#perception">восприятия</a> других миров.</p>
+<p><b>Смещение (сдвиг) точки сборки</b>  - незначительный сдвиг в пределах полосы <a href="#perception">восприятия</a> повседневной жизни (по поверхности <a href="#cocoon">кокона</a> или внутри).</p>
+
+          </p>
+         <p> Умение перемещать и сонастраивать точку сборки - <a href="#dreaming_art">сновидение</a>.</p>
+<p> Умение фиксировать в одном положении и поддерживать сонастройку - <a href="#stalking">сталкинг</a>.</p>
+Одно без другого бесполезно, т.к. перемещенная, но неудерживаемая точка сборки - это просто хаотичный набор образов.
+<p>Нужна <a href="#energy">энергия</a> для повторного смещения точки сборки туда, где она была.
+Но настоящая <a href="#impeccability">безупречность</a> это способность смещать точку сборки лишь благодаря <a href="#intent">намерению.</a></p>
+Воспоминание путешествия в <a href="#energy_body">теле сновидения</a> сдвигает точку сборки в позиции преодоления барьера <a href="#perception">восприятия</a> - <a href="#fog">стену тумана</a>, так собирается другой мир.
+С помощью <a href="#intent">несгибаемого намерения</a> точка сборки фиксируется в <a href="#dream_position">позиции сновидения</a>. Она пребывает там так долго, что перетягивает все <a href="#internal_emonations">эманации</a> внутри <a href="#cocoon">кокона</a>. Это и есть путешествия <a href="#energy_body">дубля (тело сновидения)</a>.
+
+        </div>
+      </section>
+      <section class="note-block" id="dreaming_art">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Искусство сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          
+         В терминах <a href="#assemblage_point">точки сборки</a> и <a href="#attentions">вниманий</a>:
+         <p>
+         <b>Искусство сновидения</b> — это умение смещать <a href="#assemblage_point">точку сборки</a> с помощью <a href="#energy">энергии</a>, а позже - <a href="#intent">намерения</a> с привычной позиции <a href="#attentions">первого внимания</a> и настраивать <a href="#perception">восприятие</a> на другие области <a href="#people_line">человеческой полосы.</a></p>
+         <p>Искусство сновидения - естественный путь накопления <a href="#attentions">второго внимания</a> и развития <a href="#energy_body">тело сновидения (дубля)</a>.</p>
+         В терминах  <a href="#tonal_nagual">тоналя и нагваля</a>:
+         <p><b>Искусство сновидения</b> — техника для отпускания (отхода в сторону) <a href="#tonal_nagual">тоналя</a> для использования<a href="#tonal_nagual"> нагваля</a>. 
+Картина мира разрушается чтобы войти в <a href="#tonal_nagual">нагваль</a>. В нагваль входит <a href="#perception">восприятие.</a></p>
+          <p>Существует 7 врат, которые должен открыть сновидящий:</p>
+          <ul><li><a href="#1_gate">1 врата</a></li>
+            <li><a href="#2_gate">2 врата</a></li>
+            <li><a href="#3_gate">3 врата</a></li>
+            <li><a href="#4_gate">4 врата</a></li>
+            <li><a href="#5_gate">5 врата</a></li>
+            <li><a href="#5_gate">6 врата</a></li>
+            <li><a href="#5_gate">7 врата</a></li>
+
+          </ul>
+          Искусство сновидения тесно связано с <a href="#contemplation">созерцанием</a> и <a href="#stalking">сталкингом</a>.
+        </div>
+      </section>
+      <section class="note-block" id="1_gate">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">1 врата сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+        Достичь и преодолеть <b>первые врата</b> - осознать с помощью <a href="#intent">намерения</a> ощущение проваливания в глубокий сон. Иначе говоря, нужно осознать себя спящим. Осознать должно <a href="#energy_body">энергетическое тело</a>. Нужно обрести внутренне знание, что ты - сновидящий.</p>
+
+<p>Начинают с поиска своих рук во сне, задействовав <a href = "#dream_attentions">внимание сновидения.</a></p>
+<p>Найти руки во сне - это не истиная цель, а уловка. Истиная цель - осознать момент засыпания. Руки - просто точка отсчета, с которой нужно переводить взгляд, чтоб смотреть быстро и целенаправленно на другие объекты, возвращаясь к точке отсчета. Нужно бросать короткие взгляды на объекты, тогда они не меняются, сохраняют форму</p>
+<a href="#attentions">Второе внимание</a> - океан.
+<a href = "#dream_attentions">Внимание сновидения</a> - впадающая в этот океан река.
+<p>
+По достижению первых врат сновидящий также достигает своего <a href = "#energy_body">энергетического тела</a>. С помощью сновидения сновидящий закаляет, тренерует, уплотняет <a href="#energy_body">энергетическое тело</a>, делает его воспринимаемой еденицей.
+Намеренное достижение первых врат - путь к <a href = "#energy_body">энергетическому телу</a>. Для сохранения этого достижения нужна <a href = "#energy">энергия</a>. Чтобы добыть <a href = "#energy">энергию</a> нужно убрать из жизни всё лишнее. Нужно не плыть по течению жизни, а самому формировать жизненные ситуации сообразно своим планам. Нужно формировать осознание процесса жизни и за счет этого обрести <a href = "#energy">энергию</a>, достаточную для формирования последствий каждого сделанного выбора и всего хода жизни. Ключ к достижению <a href = "#dream_attentions">внимания сновидения</a> - настойчивость.
+Барьеры ума разрушаются и <a href = "#dream_attentions">внимание сновидения</a> высвобождается.
+Для преодоления первых врат необходимо достатчоное количество <a href = "#energy">энергии</a>. Мы перераспределяем ту <a href = "#energy">энергию</a>, которая у нас имеется, а не добываем новую. Один из главных путей - <a href="#self_importance">уничтожение ЧСВ</a> и <a href="#recapitulation">перепросмотр</a>.
+<p>Лучший способ преодоления первых врат - управление <a href="#intent">намерением</a> без затрат <a href="#energy">энергии</a>.</p>
+
+
+        </div>
+      </section>
+<section class="note-block" id="2_gate">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">2 врата сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Второе врата</b> сновидения  достигаются когда сновидящий из одного сна просыпается в другом сне или последовательно меняет сон, используя объекты внутри сна (смотришь на кирпич во сне и попадаешь в другой сон).</p>
+<p>Вторые врата преодолевает <a href="#energy_body">энергетическое тело</a>. Если индульгировать, можно забраться в дебри из которых не выбраться. Нужно намеревать обрести еще более жесткий контроль над <a href="#dream_attentions">вниманием сновидения</a>.</p>
+Истиная цель сновидения - совершенствование <a href="#energy_body">энергетического тела</a>.
+<a href="#energy_body">Энергетическое тело</a> берет контроль над <a href="#dream_attentions">вниманием сновидения</a>. Развитый контроль - предохранитель.</p>
+Сновидящий ищет в сновиденях <a href="#inorganic">неорганические существа</a>, чтобы те взяли нас в другие миры. Главное - не бояться и желать встречи.
+Союзники учат смещать <a href="#assemblage_point">точку сборки</a> за пределы <a href="#cocoon">кокона</a> для переноса в миры за пределами человеческого. Но могут забрать больше <a href="#energy">энергии</a> чем дали, поэтому опасны.
+        </p>
+        <p id="attunement">В сновидении мы учимся достигать <b>сонастройки</b> - фиксировать <a href="#assemblage_point">точку сборки</a> на том положении куда она сдвинулась. Если мы видим объекты отчетливо, значит достигли сонастройки с той позицией сборки куда она сдвинулась. В этом помогает овладине <a href="#stalking">искусством сталкинга</a></p>
+        <p id="dream_position">
+<b>Позиция сновидения</b> - любые позиции, в которые сдвинулась <a href="#assemblage_point">точка сборки</a> во время сновидения. </p>
+Развитие <a href="#energy_body">энергетического тела</a>, сонастройка, отношения с <a href="#inorganic">неорганическими существами</a> - всё это цели <a href="#dreaming_art">искусства сновидения</a>.
+
+
+
+<p>Нужно постепенно переходить от небольших сдвигов <a href="#assemblage_point">точки сборки</a>, при которых воспринимается человеческое неизвестное к движению <a href="#assemblage_point">точки сборки</a> для восприятия сверхчеловеческого неизвестного. Это не только миры птиц и др. животных но и целые вселенные.</p>
+<p>При увеличения уровня осознания мы становимся заметны и интересны  <a href="#inorganic">неорганическим существам</a>. Нужно быть осторожным, т.к. можно стать их добычей, т.к. это хищная вселенная.</p>
+
+<p id="scout"><b>Вторые врата</b> преодолеваются не тогда, когда просыпаешься в другом сне или меняешь сон, а тогда когда научился распозновать чужеродную энергию в своих снах - энергию <b>лазутчиков</b> и использовать их.</p>
+<p><b>Вторые врата</b> - врата в мир  <a href="#inorganic">неорганических существ</a>. Умение просыпаться в другом сне - это просто упражнение.</p>
+<p>3 шага для преодоления вторых врат:
+<ul><li>Практикуя изменения снов/просыпание в другом сне, найти <b>лазутчика</b> (изначально выглядит как нелепый предмет, который потом превращается в энергию).</li>
+<li>Следуая за ним попасть в другую вселенную.</li>
+<li>Выяснить самому законы и правила этой новой вселенной.</li></ul></p>
+
+        </div>
+      </section>
+<section class="note-block" id="3_gate">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">3 врата сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Третьи врата</b> сновидения - обнаружить себя во сне смотрящим на себя спящего.
+У третьих врат сновидящий соединяет в одно целое реальность сна и обыденного мира. </p>
+Здесь <a href="#energy_body">энергетическое тело</a> начинает действовать самостоятельно отдельно от физического.
+Нужно не потеряться в деталях мира, т.к. неопытное <a href="#energy_body">энергетическое тело</a> легко может быть загипнотизированно деталями.
+Рецепт как избежать погружения в какую-либо отдельную вещь: нужно проявлять интерес и любопытство ко всему вокруг, тогда одна какая-либо конкретная вещь не сможет приковать к себе.
+
+
+
+
+<p>Обнаружить себя спящим необходимо именно по настоящему в той же одежде, обстановке, время суток, комнате и т.д. иначе это просто обычный сон, а не отделение <a href="#energy_body">энергетического тела</a>.</p>
+<p>Пока <a href="#energy_body">энергетическое тело</a> незрело и не укреплено, оно целпяется за все, что его окружает и утопает в этих деталях. Для решения этой проблемы нужно сталкировать свое энергетическое тело - переместить с помощью <a href="#intent">намерения</a> и закрепить <a href="#assemblage_point">точку сборки</a> туда, где <a href="#energy_body">энергетическое тело</a> и доведется до сверешенства. Нужно намереваться сделать это, нет никакого словесного рецепта.
+
+Свободное перемещение в энергетическом теле будет означать то что оно полностью созрело и развилось.</p>
+<p>Находясь в <a href="#energy_body">энергетическом теле</a> нужно увидеть энергию. Если она видна - это реальный мир, т.к. наш мир пораждает энергию. Если не видно то это обычный сон, проекция, в котором нет энергии. Энергия нашего мира мерцает.</p>
+Дополнительная энергия необходимая для перемещения <a href="#assemblage_point">точки сборки</a>, формирования <a href="#energy_body">энергетического тела</a>, <a href="#seeing">видения</a> и т.д. находится <b><u>только</u></b> в мире  <a href="#inorganic">неорганических существ</a> [Дон Хуану не нравился этот факт, но это неизбежность].</p>
+<p>
+
+<p>Использовать сталкинг сталкеров - преднамеренно черпать энергию из мира  <a href="#inorganic">неорганических существ</a> для путешествия, используя осознание как элемент окружающей среды.
+В обычном мире практикующий используют <a href="#contemplation">созерцание</a> воды для перемещения, в <a href="#inorganic">неорганическом</a> мире осознание может быть подобным элементом для перемещения. Через наше осознания к нам приходят лазутчки со всех концов вселенной. Мы можем также.</p>
+<p>Как использовать осознание как элемент окружающего мира:</p>
+<ol><li>путешествие в мир  <a href="#inorganic">неорганических существ</a> -></li>  <li>накопление нужного количества энергии там (темной) -></li> <li>использовать этой энергии как трамплин -></li>  <li>достижение других миров</li></ol>
+Иначе говоря мы выслеживаем то как путешествуют  <a href="#inorganic">неорганические существа</a> и потом самостоятельно пробуем также.
+Неорганика успешно путешествует по внешним эманациям, оставляя следы. Мы можем ими пользовать для своих путешествий. Других способов перескочить между мирами нет.</p>
+Последняя задача <b>третьих врат</b> сновидения: развить такое же непрерывное восприятие, находясь в <a href="#energy_body">энергетическом теле</a> как в физическом.</p>
+        </div>
+      </section>
+      <section class="note-block" id="4_gate">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">4 врата сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Четвертые врата</b> сновидения - способность<a href="#energy_body">энергетического тела</a> путешествовать в особые конкретные места:
+<ul><li>В места этого мира;</li>
+<li>За пределами этого мира;</li>
+<li>Места которые существуют только в намерении других (опасный путь).</li></ul>
+Заснуть во сне в сдвоенной позиции (в той же позиции, в котором физическое тело в реальности) - единственный путь переступить через <b>четвертые врата</b> сновидения.</p>
+
+        </div>
+      </section>
+      <section class="note-block" id="5_gate">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">5, 6, 7 врата сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>Кастанеда о них так и не рассказал. Информация есть в книге Тайши Абеляр "Магический переход".</p>
+
+        </div>
+      </section>
+      <section class="note-block" id="dream_attentions">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Внимание сновидения</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+         <b>Внимание сновидения</b> — это способность удерживать <a href="#perception">восприятие</a> при смещённой <a href="#assemblage_point">точке сборки</a> и воспринимать реальность вне привычной позиции <a href="#attentions">первого внимания</a>, независимо от того в <a href=#dreaming_art>сновидении</a> мы или в бодрствовании.</a></p>
+
+
+        </div>
+      </section>
+<section class="note-block" id="stalking">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Искусство сталкинга</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Искусство сталкинга</b> — это искусство удержания и стабилизации <a href="#assemblage_point">точки сборки</a> в выбранной позиции в условиях повседневной жизни.
+         </p>
+Сталкеры практикуют <a href="#controlled_folly">контролируемую глупость</a>.
+
+Чтобы избежать ловушки цинизма, будучи сталкером, нужно превратить реакцию на мир в <a href="#controlled_folly">контролируемую глупость</a>.<p>
+<b>Принципы искусства сталкинга</b>
+<ol><li>Воин сам выбирает место битвы</li>
+<li>Отбросить всё что не является необходимым</li>
+<li>Любая битва - это борьба за собственную жизнь</li>
+<li>Расслабиться, отступиться от себя, ничего не бояться. Только тогда cилы ведущие нас откроют нам дорогу и помогут нам </li>
+<li>Встречаясь с неожиданным и непонятным и не зная что с этим делать, воин на какое-то время отступает, позволяя своим мыслям бродить бесцельно. Воин занимается чем-то другим</li>
+<li>Воин сжимает время. В битве за свою жизнь, секунда - вечность, которая может решить исход сражения. Воин нацелен на успех, поэтому он экономит время, не теряя ни мгновения</li>
+<li>Сталкер никогда не выставляет себя вперед, остается в тени</li>
+</ol></p>
+<b>Предписания правила сталкинга</b>
+<ul><li>Всё окружающее нас - непостижимая тайна</li>
+<li>Мы должны пытаться решить эту тайну, не надеясь добиться этого</li>
+<li>Воин занимает свое место среди Тайни и сам себя рассматривает как одну из них. Каждый равен всему остальному</li></ul>
+
+<b>4 настроения сталкинга</b>
+<ol><li>Безжалостность (не жестокость)</li>
+<li>Искусность (не коварство)</li>
+<li>Терпение</li>
+<li>Мягкость (не глупость)</li></ol>
+
+Овладение сталкингом и <a href="#intent">намерением</a> нужно для того, чтобы сдвигать и удерживать <a href="#assemblage_point">точку сборки</a> по своей воли.
+<p>Сталкинг - использование неожиданного поведения. Это разрушает <a href="#destroy_routines">рутину</a>.
+Это необычное поведение вызывает колебания <a href="#assemblage_point">точки сборки</a>.
+Постоянная практика приводит к свдигу точки сборки.</p>
+<p>Сталкинг - в том числе выслеживание самих себя: через <a href="#death_adviser">мысли о смерти</a>, через чтение поэзии происходит толчки <a href="#assemblage_point">точки сборки</a>.
+Безжалостность (к себе) притягивает <a href="#intent">намерение.</a></p>
+        </div>
+      </section>
+      <section class="note-block" id="controlled_folly">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Контролируемая глупость</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>Единственный способ взаимодействия с социальной средой при отсутствующем <a href="#self_importance">ЧСВ</a> - <b>контролируемая глупость</b>. Это мастерство <a href="#stalking">сталкинга</a>.
+         </p>
+         <p>Контролируемая глупость - техника <a href="#stalking">сталкинга</a> - единственная возможность иметь дело с собой, другими людьми и миром (создание видимости увлеченности каким-либо действием) - способ отстранения от себя от всего и в то же время быть частью этого.</p>
+<p>Кастанеда устраивался работать на год поваром в кафе и садовником, практикуя контролируемую глупость. Таиша Абеляр стала нищенкой и попрошайкой на долгие месяцы.
+</p>
+        Чтоб практиковать контролируемую глупость надо быть способным смеяться над собой.
+Смысл контролируемой глупости в применении принципов <a href="#stalking">сталкинга</a> ко всему что он делает.
+<p>Результат:</p>
+<ul><li>Не принимает себя всерьез, не боится выглядеть дураком, может одурачить других.</li>
+<li>Приобретает бесконечное терпение. Воин не спешит и не волнуется.</li>
+<li>Способность к импровизации.</li></ul>
+
+
+        </div>
+      </section>
+<section class="note-block" id="self_importance">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Чувство собственной важности (ЧСВ)</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>ЧСВ</b> удерживает <a href="#assemblage_point">точку сборки</a> в одном положении. Человек замыкается на себе, на своей личности.</p>
+<p>
+ЧСВ - это замаскированная жалость к себе.
+Без жалости к себе человек не был бы таким важным для себя. Образ себя без ЧСВ не поддерживается.</p>
+<p>Воин стремится достигнуть места без жалости.
+<a href="#no_pity">Безжалостность</a> это не жестокость, это противоположность жалости к себе и ЧСВ.</p>
+<p>ЧСВ - сила, фиксирующая <a href="#assemblage_point">точку сборки</a> в одном положении. При уничтожении ЧСВ перестает расходоваться <a href="#energy">энергия</a>, затрачиваемая на его поддержку. Накопленная <a href="#energy">энергия</a> за счет этого идет на сдвиг <a href="#assemblage_point">точки сборки</a>. Автоматически и непреднамеренно.</p>
+<p>Чувство собственной важности порождает саморефлексию, а саморефлексия непрерывно подпитывает чувство собственной важности.
+Саморефлексия разрушила связь с духом <a href="#intent">(намерением)</a>. Отход от саморефлексии -> связь с <a href="#intent">намерением</a>.</p>
+Не отказавшись от ЧСВ, невозможно практиковать <a href="#stalking">сталкинг</a>.
+Отказавшись от ЧСВ, <a href="#assemblage_point">точка сборки</a> воина перемещается в <a href="#no_pity">место без жалости</a>.
+<p>Уничтожение ЧСВ - важнейшая часть на <a href="#warrior_path">пути воина</a>.</p>
+</p>
+
+        </div>
+      </section>
+<section class="note-block" id="attentions">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">1, 2, 3 внимание</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+            <b>Первое внимание</b> — это состояние <a href="#cocoon">осознания</a>, при котором <a href="#assemblage_point">точка сборки</a> фиксирована на поверхности <a href="#cocoon">кокона</a> в пределах <a href="#people_line">человеческой полосы</a>. Это обычное <a href="#perception">восприятие</a> мира через описание, язык и <a href="#internal_dialogue">внутренний диалог.</a>  </p>
+            <p><b>Второе внимание</b> — это состояние <a href="#cocoon">осознания</a>, при котором <a href="#assemblage_point">точка сборки</a> смещена с обычной позиции и удерживается в глубине <a href="#cocoon">кокона</a> в пределах <a href="#people_line">человеческой полосы</a>. Это <a href="#perception">восприятие</a> вне привычного описания мира, включающее <a href="#dreaming_art">сновидение</a>, <a href="#seeing">видение</a> <a href="#cocoon">энергии</a> и <a href="#silent_knowledge">безмолвное знание</a>.</p>
+            <p><b>Второе внимание</b> - полигон для достижения <b>третьего внимания.</b></p>
+            <p><b>Третье внимание</b> — это состояние <a href="#cocoon">осознания</a>, при котором активируется вся <a href="#people_line">человеческая полоса</a> <a href="#cocoon">эманаций</a>, а <a href="#assemblage_point">точка сборки</a> перестаёт быть отдельной фиксацией. Это тотальное восприятие, свободное от <a href="#human_form">человеческой формы</a>, тела и описания мира. Достигается в момент <a href="#fire_from_within">сгорания изнутри</a>. При жизни возможны лишь кратковременные касания. Только достигнув третьего внимания, воин отправляется в окончательное путешествия <a href="#perception">восприятия</a>.</p>
+         <p>Повседневный мир существует только потому, что мы знаем как удерживать его образы. Это внимание <a href="#tonal_nagual">тоналя</a> (первое внимание).
+Чтобы воспринимать мир вторым вниманием - вниманием <a href="#tonal_nagual">нагваля</a>, нужно подавить внимание <a href="#tonal_nagual">тоналя</a>, идя по <a href="#warrior_path">пути воина</a>.</p>
+Используя первое внимание мы воспринимаем «сканируя» пространство и выбираем те <a href="#great_emonations">эманации Орла</a>, которые делают объекты объектами, отбрасывая остальное. Это выборочное ограниченное <a href="#perception">восприятие</a>.
+
+
+          </p>
+           <p>Объединение двух вниманий воедино - это <a href="#wholeness">целостность самого себя</a> - то, к чему нужно стремиться, просто достижения второго внимания недостаточно. Для достижения второго внимания нужно полностью очистить <a href="#tonal_nagual">тональ</a>. 
+
+ </p>
+ 
+
+
+        </div>
+      </section>
+<section class="note-block" id="no_pity">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Место без жалости</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Место безжалости</b> — это позиция <a href="#assemblage_point">точки сборки</a>, в которой исчезает жалость к себе и эмоциональная вовлечённость, позволяя воину действовать с холодной ясностью и точностью.</p>
+            <p>Состояние, при котором <a href="#assemblage_point">точка сборки</a> находится в положении «место без жалости» - предшествует состоянию <a href="#silent_knowledge">безмолвного знания</a>.
+            Жалость к себе - прямое следствие <a href="#self_importance">ЧСВ</a>, главный якорь <a href="#attentions">первого внимания</a>.</p>
+            Жалость к другим - это жалость к себе - <a href="#self_importance">ЧСВ</a>, думаешь что твое положение лучше чем их. Нужно предоставить других самим себе и не пытаться жалеть и сочувствовать, т.к. это желание означает хотеть чтоб они были в твоей шкуре (как будто уверен, что твое положение лучше чем у них - ЧСВ.)
+</p>
+
+        </div>
+      </section>
+      <section class="note-block" id="contemplation">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Созерцание</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          
+            <p><b>Созерцание</b> — это практика удержания внимания на объекте без интерпретации, направленная на <a href="#internal_dialogue">остановку внутреннего диалога</a> и ослабление фиксации <a href="#assemblage_point">точки сборки</a>, а также - способ войти во <a href="#attentions">второе внимание.</a></p>
+<p>
+            Находясь в <a href="#attentions">первом внимании</a> можно созерцать объекты в состоянии бодрствования, но так будто находимся в <a href="#dreaming_art">сновидении</a>. Удерживая <a href="#dream_attentions">внимание сновидения</a> при созерцании объектов, совершается <a href="#attunement">сонастройка</a> и мир начинается восприниматься через <a href="#attentions">второе внимание.</a></p>
+<p>Как удерживать <a href="#dream_attentions">внимание сновидения</a> в состоянии бодрствования?
+С помощью пристального созерцания. Созерцая объекты в бодрствовании начинаем сновидеть их.
+            Перед тем как стать <a href="#dreaming_art">сновидящим</a> надо стать созерцателем.</p>
+<p>Созерцание -> остановка <a href="#attentions">внимания</a> <a href="#tonal_nagual">тоналя</a> -> <a href="#internal_dialogue">остановка внутреннего диалога</a> -> <a href="#attentions">второе внимание</a>зацепляется -> остановка мира.
+Смог остановить мир - стал созерцателем. Это лучший способ достичь <a href="#attentions">второго внимания</a> наряду со <a href="#dreaming_art">сновидением</a>. Так улавливается <a href="#attentions">второе внимание</a>. Могут уйти годы, надо просто пытаться и пытаться.</p> 
+Примерно в данной последовательности обучаются созерцанию:
+<ul><li>
+созерцание сухих листьев</li><li>растений (но не очень маленьких, т.к. они опасны)</li> <li>насекомых</li><li>деревьев</li> <li>камней</li> <li>дождя</li><li>тумана</li><li>облаков</li> <li>огня, дыма, теней.</li></ul>
+<p>Усилия должны быть направлены на то, чтобы позволить войти своему <a href="#attentions">второму вниманию</a> в место, которое созерцаешь, это как перемещение.
+Созерцание текучей воды можно также использовать для перемещения.</p>
+<p><b>Как созерцать?</b></p>
+<p>Сидеть на земле на мягкой подушке из натуральных волокон или листьев. Спину прислонить к дереву или пню. Тело расслабить.
+Глаза не фиксировать, медленно сканировать против часовой стрелки объект без поворота головы.</p>
+<p>Смотреть на линию выше горизонта несфокусированным взглядом - та же цель что и у созерцания - <a href="#internal_dialogue">остановка внутреннего диалога</a> (для отвлечения внимания <a href="#tonal_nagual">тоналя</a>), для фокусирования <a href="#attentions">второго внимания</a> (<a href="#tonal_nagual">нагваля</a>).</p>
+<p>Созерцание и <a href="#dreaming_art">сновидение</a> идут рука об руку. Сновидящие должны пристально созерцать, а затем искать свои сны в созерцании. Например созерцать тени, а затем в сновидении увидеть, что у теней есть свечение.</p>
+
+<p>Нужно постоянно стараться собирать/фокусировать свое <a href="#attentions">второе внимание.</a> На это уходят годы.</p>
+          </p>
+        </div>
+      </section>
+      <section class="note-block" id="fog">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Стена тумана</h2>
+          </div>
+          
+        </div>
+        <div class="note-body"><p>
+          <b>Стена тумана</b> - пустота <a href="#perception">восприятия</a>, граница после преодоления <a href="#attentions">первого внимания</a>, перед входом во <a href="#attentions">второе внимание</a>.</p>
+          <p>Когда <a href="#assemblage_point">точка сборки</a> достигает определенной глубины, она преодолевает некий барьер, который лишает ее способности настраивать <a href="#great_emonations">эманации</a>. Это пустота <a href="#perception">восприятия</a>. Это и есть стена тумана - момент нарушения настройки <a href="#great_emonations">эманаций.</a></p>
+          <p>У <a href="#attentions">первого внимания</a> есть граница - стена тумана. У <a href="#attentions">второго внимания</a> также есть граница. Вместе они образуют условные параллельные линии. Пересечение первой - ощущение что тело сдавилось, ощущение дрожи внутри. 
+Пересечение второй - треск где-то вверху.</p>
+Трещина между мирами - это скорее способность менять уровни внимания.
+Воин стремиться научиться свободно перемещаться между <a href="#attentions">первым</a> и <a href="#attentions">вторым вниманием</a>, достигнув <a href="#wholeness">целостности самого себя</a>.
+        </div>
+      </section>
+<section class="note-block" id="silent_knowledge">
+  <div class="note-header">
+    <div>
+      <h2 class="note-title">Безмолвное знание</h2>
+    </div>
+
+  </div>
+
+  <div class="note-body">
+   <b>Безмолвное знание</b> - это знание без мыслей, слов и рассуждений, прямое постижение, возникающее после <a href="#internal_dialogue">остановки внутреннего диалога</a>, когда <a href="#attentions">первое внимание</a> отступает и активируется <a href="#attentions">второе</a>.
+     </p>
+     Безмолвное знание - часть человека, которая всё знает, но не может думать. Чем больше пытаться познать его обычным образом с помощью разума, тем больше эфемерным оно становится. Ради мира разума современный человек отказался от безмолвного знания.
+     <p>Понятие безмолвное знание тесно переплетено с идеей <a href="#wholeness">целостности самого себя</a> и <a href="#3point">третьей точкой</a>. Возможно это одно и тоже.</p>
+  </div>
+</section>
+      <section class="note-block" id="people_line">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Человеческая полоса</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+           <p>
+            <b>Человеческая полоса</b> - малая часть из группы органической полосы <a href="#great_emonations">больших эманаций</a>.
+            <p>
+            <b>Органическая</b> жизнь использует лишь узкую полосу огромной группы <a href="#great_emonations">больших эманаций</a>.
+            <p><b> <a href="#inorganic">Неорганическая</a></b> жизнь использует гораздо более широкую группу <a href="#great_emonations">больших эманаций</a>. Большую часть полос не использует никто.<p>
+            <a href="#assemblage_point">Точка сборки</a> способна перемещается и собирать <a href="#perception">восприятие</a> только в пределах человеческой полосы - полоса энергии вселенной, проходящей через <a href="#cocoon">кокон</a> человека слева направо под углом, шириной около 30 см.
+            <p>
+Человеческая полоса - это не часть <a href="#cocoon">кокона</a>, а диапазон <a href="#great_emonations">внешних эманаций</a> Вселенной, проходящих через <a href="#cocoon">кокон</a> в пределах которого <a href="#assemblage_point">точка сборки</a> может собирать человеческое <a href="#perception">восприятие.</a></p>
+
+          </p>
+          
+         
+        </div>
+      </section>
+<section class="note-block" id="recapitulation">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Перепросмотр</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          
+            В терминах <a href="#eagle">Орла</a>:
+            <p><b>Перепросмотр</b> — это практика извлечения и упорядочивания прожитого опыта,
+посредством которой воин подготавливает <a href="#cocoon">осознание к встрече с <a href="#eagle">Орлом</a>,
+отдавая жизненный опыт еще при жизни, но не позволяя уничтожить саму <a href="#cocoon">светимость осознания.</a></p>
+В терминах эго:
+<p>Перепросмотр - это также техника для стирания мыслей о своем я.
+Стирание того что сформировало мое я, лишает воина саморефлексии. Мои шаблоны поведения, реакции на других людей и ситуации. Ведь это и составляет мое я. Цель - уйти от я, <a href="#human_form">стать бесформенным.</a> В этом перепросмотр полезен практикующим <a href="#stalking">искусство сталкинга.</a></p>
+В терминах <a href="#energy">энергии</a>:
+<p>
+Перепросмотр высвобождает заключенную в нас <a href="#energy">энергию</a>. Во время перепросмотра при выдохе высвобождается отрицательная энергия, а при вдохе возвращается потерянная энергия, взаимодействия с тем человеком, которого перепросматриваешь.
+При перепросмотре мы как бы по капле собираем энергию из прошлого.</p>
+Польза перепросмотра для <a href="#dreaming_art">искусства сновидения</a>:
+<p>Перепросмотр позволяет избавиться от тяжелых сковывающих эмоций, прочиститься, стать более невесомым и парящим.
+ </p>
+ Польза перепросмотра для <a href="#stalking">искусства сталкинга</a>:
+ <p>Перепросмотр позволяет сталкеру вернуть свою <a href="#energy">энергию</a>, освободиться от чужих нитей и <a href="#self_importance">чувства собственной важности</a>, утратить <a href="#human_form">человеческую форму</a> и тем самым обрести лёгкость, необходимую для практики <a href="#controlled_folly">контролируемой глупости</a>.
+</p>
+
+<p>
+<b>Пропуск</b></p>
+Важно вспомнить для начала одно такое особое событие, которое потрясло нас. После этого при перепросмотре того или иного события оно как бы заново проживается, а не просто вспоминается. После перепросмотра того одного важного события - <b>пропуска</b>, дорога к остальному перепросмотру открывается.</p>
+<b>Техника</b>:
+<p>
+Перепросмотр выполняется посредством составления списка людей, начиная от текущего момента к прошлому, вплоть до родителей. 
+Подбородок лежит на правом плече, по мере медленного вздоха поворачиваем голову по дуге 180 градусов. Вдох заканчивается когда подбородок укладывается на левое плечо.
+Выдыхаем глядя прямо перед собой.
+Потом берем событие и вспоминаем до тех пор, пока не всплывут все чувства, которые оно вызвало. Потом медленный выдох, перемещая голову с правого плеча на левое.
+Вдыхая справа на лево воспоминаия чувства, сталкер через дыхание, подбирает свои нити, оставленные позади.
+Выдахая слева направо сталкер освобождается от нитей, которые оставили в нем другие из того события.
+Без сбора и отбрасывания нитей нет возможности практиковать <a href="#controlled_folly">контролируемую глупость</a> т.к. чужие нити - основа <a href="#self_importance">ЧСВ</a>.
+Перепросмотр ведет к <a href="#human_form">потере человеческой формы</a>, т.к. легче делать <a href="#not_doing">не-делание</a> себя: <a href="#personal_history">старине личной истории</a>, избавление от <a href="#self_importance">ЧСВ</a>, <a href="#destroy_routines">распорядков</a> и т.д.
+
+</p>
+<p>Другой вид перепросмотра - составлять второстепенные события жизни так, чтоб из кусков получилась целая картина.</p>
+          
+        </div>
+      </section>
+      <section class="note-block" id="intent">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Намерение</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Намерение</b> — это безличная, всеобъемлющая сила Вселенной.
+          Воин не управляет намерением напрямую, но накопив личную силу, может войти с ним в резонанс и <b><u>намерение воина становится намерением <a href="#eagle">Орла</a>.</u></b></p>
+<b>Три пути, по которым к нам приходит намерение:</b>
+<ol><li>Намерение <a href="#rings_power">первого кольца силы</a>. Приходит случайно, просто оказываемся у него на пути или оно оказывается у нас на пути. Нет возможности управлять тем, что с нами случается.</li>
+<li>Намерение приходит к нам благодаря нашей решительности. Мы будто вызываем его. Настойчивость стать кем-то, получить что-то - это усилие чтоб позволить намерению узнать, что я поместил себя на пути этого намерения. При наличии <a href="#personal_power">личной силы</a> - это намерение приходит к нам добровольно. В результате становимся способными находить новые решения, влиять на людей и события. Ранее неизвестные возможности становятся очевидными.</li>
+<li>Достижение гармонии с намерением. Кульминация всех усилий в поиске безупречности на протяжении всей жизни. Находясь в этом состоянии намерение позволяет использовать себя по твоему желанию. Это намерение<a href="#rings_power"> второго кольца силы</a>.</li></ol>
+
+<p><a href="#not_doing">Не-делание</a> - техника для блокировки <a href="#rings_power">первого кольца силы</a>. Это прерывание намерения <a href="#rings_power">первого кольца силы</a>. Первичное прерывание обычно делает учитель, но можно и самому. Только после прерывания намерения <a href="#ring">первого кольца силы</a> становится возможным установление связи с намерением <a href="#rings_power">второго кольца силы</a>.
+</p>
+
+
+          В терминах <a href="#cocoon">эманаций</a>:
+          <p id="will">
+            <a href="#cocoon">Эманации внутри кокона</a> настраиваются на <a href="#great_emonations">внешние эманации</a>. При настройке возникает энергия - <b>воля</b>.
+            <b>Воля</b> - сила исходящая из живота, из отверстия чуть ниже пупка.
+Чтобы <b>воля</b> стала действующим началом, тело должно быть совершенным.
+<b>Намерение</b> - управление этой <b>волей</b>.
+Настройка, которая удерживает <a href="#assemblage_point">точку сборки</a> неподвижной - <b>воля</b>.
+Настройка которая сдвигает <a href="#assemblage_point">точку сборку</a> - <b>намерение</b>.
+
+Воля безлична. Намерение — это воля, проявленная через воина.
+Превратить легко, а убедить себя в том, что это возможно - сложно.
+
+          </p>
+<p>
+Еще про управление намерением</p>
+<p><b>Моя команда это команда Орла.</b> В этом сущность силы намерения.
+Управление намерением начинается с команды самому себе и повторяется до тех пор пока они не станут командами <a href="#eagle">Орла</a>. </p>
+<p>
+Несгибаемое намерение - непоколебимая неистовая целеустремленность.
+Намерение смерти можно остановить путем изменения позиции <a href="#assemblage_point">точки сборки</a>.
+Несгибаемое намерение запускает необратимые действия, не подлежащие изменению -> это сдвигает <a href="#assemblage_point">точку сборки</a> -> меняется <a href="#perception">восприятие</a>, решимость увеличивается -> несгибаемое намерение проявляется еще больше.</p>
+<p>
+Человек должен соедениться с внешней энергией, с духом, тогда сам дух перемещает его <a href="#assemblage_point">точку сборки</a>. Нужно позволить намерению овладеть собой. Мое намерение становится намерением <a href="#eagle">Орла</a>. Намерения сливаются.
+С помощью намерения можно сместись <a href="#assemblage_point">точку сборки</a> в позицию бессмертия, но это временное решение, не <a href="#fire_from_within">тотальная свобода.</a></p>
+<p>
+Воин должен вызвать намерение, а взгляд является ключом. Глаза выманивают намерение.
+Намерение управляется глазами. Намерение притягивают чем-то неопределенным, что содержится в сиянии глаз. Намерение приходит через глаза, а не через разум.</p>
+<p>Повышенное <a href="#cocoon">осознание</a> - врата намерения.</p>
+
+
+        </div>
+      </section>
+  <section class="note-block" id="seeing">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Видение</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+         <p>Видеть напрямую энергию во вселенной и людей в виде <a href="#cocoon">коконов</a> может каждый человек и более того делает это постоянно паралелльно с обычным восприятием, просто из-за <a href="#self_importance">саморефлексии</a>, <a href="#internal_dialogue">внутреннего диалога</a> и т.д. это заглушается. Не надо ничего делать специально чтобы видеть, нужно убрать мешающее.</p>
+         <p><a href="#internal_dialogue">Внутренний диалог</a> фиксирует <a href="#assemblage_point">точку сборки</a> и блокирует видение.</p><p>
+Обычное <a href="#perception">восприятие</a> собирает отдельные объекты например дерево из маленьких блоков <a href="#great_emonations">эманаций</a>, а видящие видят сами <a href="#great_emonations">эманации</a> как единое непрерывное поле. <a href="#assemblage_point">Точка сборки</a>, находясь в позиции <a href="#attentions">первого внимания</a>, отбрасывает часть из уже отобранных для настройки эманаций и формирует рафинированную конструкцию, как бы снимает сливки. Тем самым мы не воспринимаем большую часть <a href="#great_emonations">эманаций</a>, не видим всю картину целиком.</p>
+<a href="#assemblage_point">Точка сборки</a> сдвигается в позицию схожей с <a href="#dream_position">позицей сновидения</a> во время бодрствования. Так происходит видение через <a href="#attentions">второе внимание</a>.
+Увидеть <a href="#cocoon">кокон</a> человека проще сзади, т.к. спереди что-то вроде защитного экрана.
+
+        </div>
+      </section>
+      <section class="note-block" id="wholeness">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Целостность самого себя</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+         <p><b>Целостность</b> — это способность свободно переходить между <a href="#attentions">первым и вторым вниманием</a>, сохраняя устойчивость и ясность.
+Объединить все возможные позиции <a href="#assemblage_point">точки сборки</a> - достичь целостности самого себя.</p>
+<p>
+В терминах третьей точки:
+<p id="3point">Третья точка - свобода <a href="#personal_power">восприятия</a>. Когда оба <a href="#attentions">внимания (1 и 2)</a> соединяются  благодаря практике или потрясениям (большой стресс), <a href="#perception">точка сборки</a> сдвигается так сильно, что разрушается непрерывность. Положение <a href="#silent_knowledge">безмолвного знания</a> - третья точка. Чтобы достичь ее нужно пройти вторую точку - <a href="#no_pity">место без жалости</a>.
+</p>
+<p>
+Раздвоенное восприятие - <a href="#perception">восприятие</a> через разум и <a href="#silent_knowledge">безмолвное знание</a> одновременно. Для этого нужна подвижность <a href="#assemblage_point">точки сборки</a>. Только имея образцовый разум, можно сдвинуть <a href="#assemblage_point">точку сборки</a> в точку <a href="#silent_knowledge">безмолвного знания</a>. Достижение - иметь мост от разума к <a href="#silent_knowledge">безмолвному знанию</a> и наоборот.</p>
+<p>В терминах <a href="#rings_power">колец силы</a>:</p>
+<p>
+Нужна целая жизнь непрерывной дисциплины - несгибаемое <a href="#intent">намерение</a>, чтобы подготовить <a href="#rings_power">второе кольцо силы</a> создавать образы сканирования, соответствующие другому уровню <a href="#great_emonations">эманаций</a> <a href="#eagle">Орла</a>. Овладеть <a href="#perception">восприятием</a> обоих миров - вот подвиг. Но это не должно стать самоцелью, т.к. от этого трудно отказаться. Ведь цель - преодоление этих двух <a href="#perception">восприятий</a>, чтоб войти в <b>тотальную свободу</b> <a href="#attentions">третьего внимания</a>.
+</p>
+        </div>
+      </section>
+      <section class="note-block" id="human_form">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Потеря человеческой формы</h2>
+          </div>
+          
+        </div>
+        <div class="note-body"><p>
+        <b>Человеческая форма</b> - сила настройки внутренних <a href="#cocoon">эманаций</a>,  которые делают нас личностью. Благодаря практике <a href="#assemblage_point">точка сборки</a> устойчиво сдвигается. Появляется чувство самоотрешенности. <a href="#cocoon">Эманации</a> перенастраиваются. Начинается серия значительных сдвигов.</p>
+Первоначальный сдвиг - <b>потеря человеческой формы</b>. Это необратимо.
+Нужно быть <a href="#impeccability">безупречным</a> в своих усилиях измениться, чтобы спугнуть свою человеческую форму и стряхнуть ее.
+Потеря челоевеческой формы приводит в том числе к отрешенности.
+
+
+        </div>
+      </section>
+      <section class="note-block" id="alert_warrior">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Алертный воин</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+        Алертный воин — это воин, чьё <a href="#attentions">внимание</a> свободно от <a href="#internal_dialogue">внутреннего диалога</a>, постоянно присутствует в моменте и готово к действию без напряжения и ожиданий. <p>Воин не имеет права на сомнение после того как сделал выбор и действует. Воин полностью на стороне этого действия. Воин верит не в результат, а в само действие.</p>
+        Алертный воин всегда готов, бдителен и в то же время расслаблен.
+
+
+        </div>
+      </section>
+      <section class="note-block" id="impeccability">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Безупречность</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+       <p><b>Безупречность</b> - наилучшее использование уровня <a href="#energy">энергии</a>. Самое важное - отсутствие <a href="#self_importance">саморефлексии</a>, т.к. на нее тратится огромное количество энергии.</p> 
+       <p>
+Для управления движением <a href="#assemblage_point">точки сборки</a> нужна энергия. Безупречность - то что сберегает <a href="#energy">энергию</a>.
+Безупречность — это способ жить и действовать так, чтобы не растрачивать энергию впустую, жить как <a href="#warrior_path">воин</a>.</p>
+
+Важным ключом к безупречности является чувство времени. Когда чувствуешь и действуешь как бессмертное существо - ты не безупречен. <a href="#death_adviser">Времени нет</a> ни у кого из нас.
+Безупречность ведет к <a href="#human_form">потере человеческой формы</a>.
+
+
+        </div>
+      </section>
+      <section class="note-block" id="personal_power">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Личная сила</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+       <b>Личная сила</b> - способность человека действовать в согласии с <a href ="#intent">намерением</a> за счёт <a href="#impeccability">накопленной</a> и упорядоченной <a href="#energy">энергии</a>.
+       <p>Личная сила проявляется как чувство удачи или счастья.</p>
+       Воин способен на всё, имея достаточное количество личной силы.
+
+
+        </div>
+      </section>
+      <section class="note-block" id="inorganic">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Неорганические существа</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+       <p><b>Неорганические существа</b> - существа, не имеющие организма, но способные к осознанию. Иногда могут становиться доступными нашему <a href="#perception">восприятию</a> в обычном мире, если видящий задействовал <a href="#attentions">второе внимание</a>, но чаще в <a href="#dreaming_art">сновидении</a>.
+       Известны некоторые виды из них: <a href="#scout">лазутчики</a>, союзники, <a href="#flyers">летуны</a>.</p>
+       <p>Неорганические существа используют гораздо большую полосу <a href="#great_emonations">больших эманаций</a>, чем <a href="#people_line">человек</a> и в целом органические существа.</p>
+
+
+
+        </div>
+      </section>
+      <section class="note-block" id="rings_power">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">1, 2 кольцо силы</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p><b>Первое кольцо силы</b> — это совокупность сил, удерживающих <a href="#attentions">первое внимание</a> и описание мира (разум, <a href="#internal_dialogue">внутренний диалог</a>, социум), блокирующих <a href="#tonal_nagual">нагваль</a>и фиксирующих <a href="#assemblage_point">точку сборки</a> в обычной позиции. Первое кольцо силы - разум, противопоставлется второму кольцу силы - <a href="#will">воля</a>.</p>
+      <p>Первое кольцо силы сидит на крючке делания.
+Например обычное восприятие комнаты. Кольца людей сцеплены чтобы создать комнату.</p>
+<p><b>Второе кольцо силы</b> сидит на крючке <a href="#not_doing">не-делания</a>.
+Второе кольцо силы — это совокупность сил, позволяющих действовать вне описания мира (<a href="#internal_dialogue">остановка внутреннего диалога</a>, <a href="#impeccability">безупречность</a>).
+Второе кольцо силы - опора <a href="#attentions">второго внимания</a>.
+Второе кольцо силы — это система <a href="#will">воли</a> и <a href="#intent">намерения</a>, позволяющая действовать вне описания мира и удерживать <a href="#attentions">второе внимание</a>.</p>
+
+
+
+        </div>
+      </section>
+      <section class="note-block" id="eagle">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Орёл</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+            Орёл — это не существо и не бог, а безличная сила Вселенной.
+Он является источником всех <a href="#great_emonations">эманаций</a>, из которых состоит мир, в том числе человек. <a href="#cocoon">Внутренний эманации</a> человеческого <a href="#cocoon">кокона</a> - временная форма <a href="#great_emonations">больших эманаций</a> собранных в виде человека.
+Каждому живому существу Орёл даёт <a href="#cocoon">осознание</a>, а в момент смерти забирает его обратно, поглощая опыт, накопленный в течение жизни.
+          </p>
+        </div>
+      </section>
+       <section class="note-block" id="flyers">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Летуны</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+            Летуны - <a href="#inorganic">неорганические существа</a>, пожирающие нашу <a href="#cocoon">светящуюся оболочку</a>, оболочку осознания. </p>
+            <p>Они могут делать это потому что внедрили нам свой разум, из-за которого мы <a href="#self_importance">саморефлексируем</a>, ведем <a href="#internal_dialogue">внутренний диалог</a>, проявляем <a href="#self_importance">ЧСВ</a> и т.д. Летуны подталкивают нас к тому, чтобы вести себя всегда одинаково, по одному и тому же шаблону, реагировать одинаково, попадать в одни и те же ситуации.</p>
+            <p>
+В итоге всегда находимся в состоянии либо страданий (страх, вина, стыд), либо развиваем эго (гордыня, правота, обида).
+Это ведет к потере <a href="#energy">энергии</a>. В итоге от светящейся оболочки <a href="#cocoon">осознания</a> остается только нижняя часть у самых коничков пальцев ног.
+Избавившись от <a href="#self_importance">саморефлексии и ЧСВ</a>, можно отрастить новую оболочку, невкусную для летунов.</p>
+
+Хищная Вселенная постоянно подвергает всех существ внешнему давлению, побуждая их совершенствовать свою осознанность, тем самым Вселенная пытается прийти к осознанию самой себя.
+          </p>
+
+        </div>
+      </section>
+      <section class="note-block" id="fire_from_within">
+        <div class="note-header">
+          <div>
+            <h2 class="note-title">Сгореть огнем изнутри</h2>
+          </div>
+          
+        </div>
+        <div class="note-body">
+          <p>
+            Что технически происходит, когда человек сгорает огнем изнутри/альтернатива умирания? </p>
+            <p><a href="#assemblage_point">Точка сборки</a> сдвигается по <a href="#cocoon">кокону</a> к границам неизвестного -> возвращается к границам известного -> за счет мгновенного высвобождения, она подобно молнии проносится вдоль всего <a href="#cocoon">кокона</a> человека, настраивая сразу все внутренние янтарные <a href="#cocoon">эманации</a>, происходит полное осознание. Загорается весь кокон, а не отдельная точка или полоса.</p><p>Видящие сгорают, за счет <a href="#will">воли</a>, которую они <a href="#impeccability">безупречной жизнью</a> <a href="#warrior_path">воина</a> превратили в силу <a href="#intent">намерения</a>. </p>
+            <p>В этот момент <a href="#assemblage_point">точка сборки</a>перестаёт существовать как локализованная фиксация: вместо неё загорается вся <a href="#people_line">человеческая полоса</a><a href="#cocoon">эманаций</a>. Это <a href="#attentions">третье внимание</a> — состояние, при котором <a href="#cocoon">осознание</a> больше не собирается в точке, а становится тотальным, это тотальная свобода восприятия. <a href="#eagle">Орёл</a> больше не страшен, но даже это временно, осознание дожно быть возвращено туда, откуда пришло.</p>
+[На мой взгляд стремление к тотальной свободе несколько расходится с планами Вселенной, ведь существа, собранные в форме индивидуальных осознаний - это способ Вселенной через них осознать себя. Зачем же тогда стремиться стать бесформенной частью Вселенной, чем она по большей частью и так уже является? Не является ли стремление к тотальной свободе формой претензии на уровень Вселенной (или Бога) - желанием перестать быть средством её самопознания и занять позицию вне её собственных процессов?
+<p>С другой стороны - древние видящие сказали, что это не проявление эго, а дар Орла. Ну ок.]</p>
+          </p>
+        </div>
+      </section>
+
+     
+
+
+    </div>
+  </div>
+<script>
+  // Разделяем блоки на внешние и вложенные
+  document.querySelectorAll('.note-block').forEach(block => {
+    const isInner = !!block.closest('.note-body');  // есть родитель note-body → вложенный
+    const btn = block.querySelector('.note-toggle');
+
+    if (isInner) {
+      block.classList.add('note-block--inner');
+      // у внутренних кнопку оставляем как есть
+    } else {
+      block.classList.add('note-block--outer');
+      // у внешних кнопку убираем совсем
+      if (btn) {
+        btn.remove();
+      }
+    }
+  });
+</script>
+  <script>
+    // Инициализация: вложенные блоки по умолчанию свёрнуты
+document.querySelectorAll('.note-block').forEach(function (block) {
+  const btn = block.querySelector('.note-toggle');
+  const isNested = !!block.closest('.note-body'); // если блок лежит внутри .note-body → он вложенный
+
+  if (isNested) {
+    block.classList.add('collapsed');
+    if (btn) {
+      btn.textContent = '+';
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  } else {
+    // верхнеуровневые блоки стартуют раскрытыми
+    if (btn) {
+      btn.textContent = '−';
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+});
+    // сворачивание / разворачивание блоков
+    document.querySelectorAll('.note-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function () {
+        const block = btn.closest('.note-block');
+        const collapsed = block.classList.toggle('collapsed');
+        btn.textContent = collapsed ? '+' : '−';
+        btn.setAttribute('aria-expanded', String(!collapsed));
+      });
+    });
+
+    // плавный скролл по якорям меню
+    document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(function(link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const id = link.getAttribute('href').slice(1);
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+    // Плавное "янтарное" растворение отдельных блоков, когда они подползая к заголовку
+(function () {
+  const header = document.querySelector('.page-header');
+  const blocks = document.querySelectorAll('.note-block');
+
+  if (!header || !blocks.length) return;
+    // создаёт вспышку (кольцо), исходящую из заданного прямоугольника блока
+  function spawnFlash(rect) {
+    const ring = document.createElement('div');
+    ring.className = 'flash-ring';
+
+    // центр блока в координатах окна
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    ring.style.left = `${cx}px`;
+    ring.style.top  = `${cy}px`;
+
+    // делаем кольцо достаточно большим, чтобы "дойти" до краёв экрана
+    const size = Math.max(window.innerWidth, window.innerHeight) * 2;
+    ring.style.width  = `${size}px`;
+    ring.style.height = `${size}px`;
+
+    document.body.appendChild(ring);
+
+    ring.addEventListener('animationend', () => {
+      ring.remove();
+    });
+  }
+
+  function updateBlocksVisibility() {
+    const headerRect = header.getBoundingClientRect();
+    const threshold = headerRect.bottom + 10;  // старт зоны
+    const fadeDistance = 200;                  // длина зоны растворения
+
+    blocks.forEach(block => {
+      const rect = block.getBoundingClientRect();
+      const delta = threshold - rect.bottom;     // насколько НИЗ блока залез под заголовокзаголовок
+
+      const headerEl = block.querySelector('.note-header');
+      const bodyEl   = block.querySelector('.note-body');
+      if (!headerEl || !bodyEl) return;
+
+            if (delta <= 0) {
+        // блок ниже заголовка — полностью нормальный
+        block.style.opacity       = '1';
+        block.style.transform     = 'translateY(0px)';
+        block.style.pointerEvents = 'auto';
+
+        headerEl.style.background = '';
+        bodyEl.style.background   = '';
+        block.style.color         = '';
+        block.dataset.flared      = '';   // можно снова вспыхнуть в следующий раз
+        return;
+      }
+
+            if (delta >= fadeDistance) {
+        // блок целиком в зоне — исчез
+        block.style.opacity       = '0';
+        block.style.transform     = 'translateY(-20px)';
+        block.style.pointerEvents = 'none';
+
+        // вспышка только один раз на "умирание" блока
+        if (!block.dataset.flared) {
+          block.dataset.flared = '1';
+          spawnFlash(rect);
+        }
+        return;
+      }
+
+      // промежуточная стадия
+      const t = delta / fadeDistance;   // 0..1
+
+      // прозрачность и лёгкий сдвиг вверх
+      const opacity = 1 - t;
+      const shift   = -20 * t;
+      block.style.opacity      = String(opacity);
+      block.style.transform    = `translateY(${shift}px)`;
+      block.style.pointerEvents = opacity < 0.05 ? 'none' : 'auto';
+
+      // --- Цветовая магия (явная, без "тонких градиентов") ---
+
+      // Янтарный → почти белый
+      const amber = { r: 240, g: 196, b: 101 };
+      const white = { r: 255, g: 255, b: 245 };
+
+      const r = Math.round(amber.r + (white.r - amber.r) * t);
+      const g = Math.round(amber.g + (white.g - amber.g) * t);
+      const b = Math.round(amber.b + (white.b - amber.b) * t);
+
+      // Фон хедера: яркий, почти сплошной
+      const headerAlpha = 0.75 + 0.25 * t; // 0.75 → 1.0
+      headerEl.style.background = `rgba(${r},${g},${b},${headerAlpha})`;
+
+      // Фон тела: чуть темнее, но всё равно светлый
+      const bodyAlpha = 0.55 + 0.25 * t;   // 0.55 → 0.8
+      bodyEl.style.background = `rgba(${r},${g},${b},${bodyAlpha})`;
+
+      // Текст: делаем тёмным, чтобы читался на светлом фоне
+      const textDark = Math.round(20 + 50 * t); // слегка меняется, но в пределах тёмного
+      block.style.color = `rgb(${textDark},${textDark},${textDark})`;
+    });
+  }
+
+  window.addEventListener('scroll', updateBlocksVisibility);
+  window.addEventListener('resize', updateBlocksVisibility);
+  updateBlocksVisibility();
+})();
+  </script>
+
+  <script>
+// === НАСТРОЙКА: меняй ТОЛЬКО ЭТО ЗНАЧЕНИЕ ===
+const IMAGE_WIDTH_PERCENT = 100; // ← сюда пиши 50, 60, 70, 80, 90 и т.д.
+const FADE_WIDTH_PX = 100;      // ← ширина растворения по краям (в пикселях)
+
+// === Автоматический расчёт ===
+const leftEdge = (100 - IMAGE_WIDTH_PERCENT) / 2; // например, 15 при 70%
+const rightEdge = 100 - leftEdge;                 // например, 85 при 70%
+
+// Создаём строку градиента для маски
+const maskGradient = `
+  to right,
+  transparent 0%,
+  transparent ${leftEdge}%,
+  black calc(${leftEdge}% + ${FADE_WIDTH_PX}px),
+  black calc(${rightEdge}% - ${FADE_WIDTH_PX}px),
+  transparent ${rightEdge}%,
+  transparent 100%
+`;
+
+// Применяем стили через CSS-правило (надёжнее, чем style="")
+const style = document.createElement('style');
+style.textContent = `
+  .eagle-layer {
+    background-size: ${IMAGE_WIDTH_PERCENT}% auto;
+    -webkit-mask-image: linear-gradient(${maskGradient});
+    mask-image: linear-gradient(${maskGradient});
+    mask-size: 100% 100%;
+    -webkit-mask-size: 100% 100%;
+  }
+
+  /* Мобильная версия: обрезаем боковушки, орёл как постер */
+  @media (max-width: 960px) {
+    .eagle-layer {
+      background-size: cover;
+      background-position: center top;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+<script>
+/**
+ * Настройки
+ */
+const SCROLL_OFFSET = 250;   // отступ сверху, чтобы блок не лез под шапку
+const BTN_MARGIN_X  = 24;    // отступ кнопки вправо от блока (можешь менять)
+const BTN_OFFSET_Y  = 0;     // дополнительный вертикальный сдвиг, если захочешь
+
+const backBtn = document.getElementById("back-btn");
+
+// в стеке храним: позицию скролла и позицию кнопки (top/left)
+const jumpHistory = [];
+
+// по умолчанию кнопку "Вернуться" прячем
+backBtn.style.display = "none";
+
+document.addEventListener("click", function (e) {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+
+  const hash = link.getAttribute("href");
+  const targetId = hash.slice(1);
+  if (!targetId) return;
+
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  // не даём браузеру прыгать сам
+  e.preventDefault();
+
+  const scrollEl   = document.scrollingElement || document.documentElement;
+  const currentY   = scrollEl.scrollTop;
+  const currentTop = backBtn.style.top  || "";
+  const currentLeft= backBtn.style.left || "";
+
+  // сохраняем ТЕКУЩУЮ позицию и положение кнопки
+  jumpHistory.push({ y: currentY, top: currentTop, left: currentLeft });
+
+  // верх и левый край блока в координатах документа
+  const rect        = target.getBoundingClientRect();
+  const absoluteTop = currentY + rect.top;
+  const absoluteLeft= rect.left + (window.scrollX || window.pageXOffset);
+
+  // скроллим так, чтобы блок оказался чуть ниже шапки — ПЛАВНО
+  scrollEl.scrollTo({
+    top: absoluteTop - SCROLL_OFFSET,
+    behavior: "smooth"
+  });
+
+    // показываем кнопку, чтобы корректно измерить её высоту
+  backBtn.style.display = "block";
+  const btnHeight = backBtn.offsetHeight || 0;
+  const btnWidth  = backBtn.offsetWidth  || 0;
+
+  const isMobile = window.innerWidth <= 1025;
+
+  let btnTop, btnLeft;
+
+  if (isMobile) {
+    // На мобилке: кнопка ПОД блоком, по центру экрана
+    btnTop = absoluteTop + rect.height + 12; // 12px отступ вниз от блока
+
+    btnLeft =
+      (window.scrollX || window.pageXOffset) +
+      (window.innerWidth - btnWidth) / 2;
+  } else {
+    // На десктопе оставляем старое поведение — справа от блока
+    btnTop = absoluteTop + rect.height / 2 - btnHeight / 2 + BTN_OFFSET_Y;
+    btnLeft = absoluteLeft + rect.width + BTN_MARGIN_X;
+  }
+
+  backBtn.style.top  = btnTop  + "px";
+  backBtn.style.left = btnLeft + "px";
+
+  // обновляем hash в адресной строке (без резкого прыжка)
+  if (history.pushState) {
+    history.pushState(null, "", hash);
+  } else {
+    window.location.hash = hash;
+  }
+});
+
+/**
+ * Кнопка "Вернуться"
+ */
+backBtn.addEventListener("click", function () {
+  if (!jumpHistory.length) {
+    backBtn.style.display = "none";
+    return;
+  }
+
+  const scrollEl = document.scrollingElement || document.documentElement;
+  const { y, top, left } = jumpHistory.pop();
+
+  // плавный возврат
+  scrollEl.scrollTo({
+    top: y,
+    behavior: "smooth"
+  });
+
+  if (top)  backBtn.style.top  = top;
+  if (left) backBtn.style.left = left;
+
+  if (!jumpHistory.length) {
+    backBtn.style.display = "none";
+  }
+});
+</script>
+<script>
+  // Автоинициализация всех .spoiler: по умолчанию свёрнуты
+  document.querySelectorAll('.spoiler').forEach(function(spoiler) {
+    // ставим collapsed только если контента реально много
+    // (проверка по высоте — чтобы короткие блоки не трогать)
+    const fullHeight = spoiler.scrollHeight;
+    const MAX_COLLAPSED = 220; // тот же, что в CSS
+
+    if (fullHeight > MAX_COLLAPSED + 40) {
+      spoiler.classList.add('collapsed');
+
+      // кликаем по самой полосе (::after симулируем кликом по блоку)
+      spoiler.addEventListener('click', function (e) {
+        // чтобы не мешать кликам по ссылкам внутри текста
+        const tag = e.target.tagName.toLowerCase();
+        if (tag === 'a' || tag === 'button') return;
+
+        if (spoiler.classList.contains('collapsed')) {
+          spoiler.classList.remove('collapsed');
+          spoiler.classList.add('expanded');
+        } else {
+          spoiler.classList.remove('expanded');
+          spoiler.classList.add('collapsed');
+        }
+      });
+    }
+  });
+</script>
+<script>
+(function () {
+  const TUNNEL_MS  = 5000;
+  const RECOVER_MS = 800;
+  const MSG_MS     = 1000;
+
+  const MIN_DELAY_MS = 60_000;
+  const MAX_DELAY_MS = 180_000;
+  const RARE_CHANCE = 0.10;
+  const RARE_MIN_MS = 300_000;
+  const RARE_MAX_MS = 420_000;
+
+  const MESSAGES = [
+    "НЕ-ДЕЛАЙ","НЕ ИНДУЛЬГИРУЙ","НЕ ЖАЛЕЙ СЕБЯ","СМЕРТЬ РЯДОМ",
+    "ИЗБАВЬСЯ ОТ ЧСВ","ОСТАНОВИ ВНУТРЕННИЙ ДИАЛОГ","БУДЬ БЕЗУПРЕЧНЫМ",
+    "ПОМНИ О СМЕРТИ","СТАНЬ НЕДОСТУПНЫМ","УНИЧТОЖЬ РАСПОРЯДКИ"
+  ];
+
+  let msgIndex = 0;
+  const msgEl = document.getElementById("tripMsg");
+
+  document.body.classList.add("trip-ready");
+
+  function randInt(min, max) { return Math.floor(min + Math.random() * (max - min)); }
+  function nextDelay() {
+    if (Math.random() < RARE_CHANCE) return randInt(RARE_MIN_MS, RARE_MAX_MS);
+    return randInt(MIN_DELAY_MS, MAX_DELAY_MS);
+  }
+
+  function showMessage() {
+    if (!msgEl) return;
+    msgEl.textContent = MESSAGES[msgIndex % MESSAGES.length];
+    msgIndex++;
+    document.body.classList.add("trip-flash");
+    setTimeout(() => document.body.classList.remove("trip-flash"), MSG_MS);
+  }
+
+  // === вот оно: живое управление SVG filter во время полёта ===
+  const turb = document.getElementById("warpTurb");
+  const disp = document.getElementById("warpDisp");
+  const blur = document.getElementById("warpBlur");
+
+  let rafId = 0;
+  let warpStart = 0;
+
+  function startWarpAnimation() {
+    if (!turb || !disp || !blur) return;
+
+    cancelAnimationFrame(rafId);
+    warpStart = performance.now();
+
+    const seed = Math.floor(Math.random() * 9999);
+    turb.setAttribute("seed", String(seed));
+
+    function tick(now) {
+      const t = Math.min(1, (now - warpStart) / TUNNEL_MS);
+
+      // “скорость х2” ощущается не временем, а тем, насколько сильно выкручиваем искажение
+      const easeIn = t * t;                 // старт мягче
+      const easeOut = 1 - Math.pow(1 - t, 3); // финиш резче
+      const k = 0.25 * easeIn + 0.75 * easeOut;
+
+      // 1) Displacement: реально “ломаем” картинку к центру
+      // (цифры можно крутить: scale 0..120)
+      const scale = 0 + 120 * k;
+      disp.setAttribute("scale", String(scale));
+
+      // 2) Turbulence: чем дальше — тем “струйнее”
+      // baseFrequency 0.012..0.045
+      const bf = 0.012 + 0.033 * k;
+      turb.setAttribute("baseFrequency", bf.toFixed(4));
+
+      // 3) Blur: чуть-чуть добавляем “скорость”
+      // stdDeviation 0..2.2
+      const sd = 0 + 2.2 * k;
+      blur.setAttribute("stdDeviation", sd.toFixed(2));
+
+      if (t < 1) rafId = requestAnimationFrame(tick);
+    }
+
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stopWarpAnimation() {
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+    // сбросим фильтр, чтобы после recovery всё было чисто
+    if (disp) disp.setAttribute("scale", "0");
+    if (blur) blur.setAttribute("stdDeviation", "0");
+    if (turb) turb.setAttribute("baseFrequency", "0.012");
+  }
+
+  function resetTrip() {
+    document.body.classList.add("trip-recover");
+    document.body.classList.remove("trip");
+
+    stopWarpAnimation();
+
+    setTimeout(() => {
+      document.body.classList.remove("trip-recover");
+    }, RECOVER_MS);
+  }
+
+  function runTripOnce() {
+    if (document.body.classList.contains("trip")) return;
+
+    document.body.classList.add("trip");
+    startWarpAnimation();
+
+    // фраза в самом конце “чёрного тоннеля”
+    setTimeout(showMessage, TUNNEL_MS - 120);
+
+    // восстановление
+    setTimeout(resetTrip, TUNNEL_MS + MSG_MS + 250);
+  }
+
+  function scheduleNext() {
+    setTimeout(() => {
+      runTripOnce();
+      scheduleNext();
+    }, nextDelay());
+  }
+
+  scheduleNext();
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "t") runTripOnce();
+  });
+})();
+</script>
+</body>
+</html>
