@@ -2291,7 +2291,10 @@ document.addEventListener("click", function (e) {
 
   if (isMobile) {
     // На мобилке: кнопка ПОД блоком, по центру экрана
-    btnTop = absoluteTop + rect.height + 2; // 12px отступ вниз от блока
+    const TAIL_H = 60;      // у тебя --bottom-fade-height: 60px
+const BTN_LIFT = 10;    // ещё на 10px выше (как ты хочешь)
+
+btnTop = absoluteTop + rect.height - (TAIL_H - BTN_LIFT);
 
     btnLeft =
       (window.scrollX || window.pageXOffset) +
