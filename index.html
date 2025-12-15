@@ -512,6 +512,23 @@ body::after {
     margin-right: 4px;
     margin-bottom: 4px;
   }
+  .trip-message {
+    inset: 0;
+    padding: 0 8vw;
+  }
+
+  .trip-message .msg {
+    font-size: clamp(20px, 7vw, 36px); /* МЕНЬШЕ и стабильнее */
+    line-height: 1.15;
+    letter-spacing: 0.08em;
+    max-width: 100%;
+    text-align: center;
+
+    transform: none;          
+    white-space: normal;      
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
 #back-btn {
     position: fixed !important;
     left: 50% !important;
