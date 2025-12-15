@@ -492,6 +492,23 @@ body::after {
 html, body {
     overflow-x: hidden;
 }
+  /* Лочим экран, чтобы никакие scale/blur не создавали горизонтальный скролл */
+  html.trip-lock, body.trip-lock {
+    overflow: hidden !important;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+  /* На момент показа фразы убираем всё лишнее, чтобы не было "раздувания" */
+  body.trip-msg-only .warp-layer,
+  body.trip-msg-only .eagle-layer,
+  body.trip-msg-only .content-shell,
+  body.trip-msg-only .page-header,
+  body.trip-msg-only .sidebar {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
   .sidebar {
     position: fixed;
     left: 50%;
@@ -516,26 +533,22 @@ html, body {
   }
  
 
-  /* 2) контейнер вспышки: не даём ему расширять страницу */
+ /* Надпись: железобетонно по центру + не может раздвинуть страницу */
   .trip-message {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100vw;
     overflow: hidden;
-    padding: 0 5vw;
   }
-
-  /* 3) сам текст: разрешаем переносы и ломаем длинные слова/фразы */
   .trip-message .msg {
-    max-width: 90vw;
-    margin: 0 auto;
-
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-
-    /* чуть мягче, чтобы длинные фразы влезали */
-    letter-spacing: 0.06em;
-    font-size: clamp(22px, 8vw, 64px);
+    max-width: 92vw;
+    padding: 0 6vw;
     text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;   /* чтобы длинное не уезжало */
+    word-break: break-word;
   }
 #back-btn {
     position: fixed !important;
