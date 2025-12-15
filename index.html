@@ -489,7 +489,9 @@ body::after {
   body::after {
     display: none;
   }
-
+html, body {
+    overflow-x: hidden;
+}
   .sidebar {
     position: fixed;
     left: 50%;
@@ -512,22 +514,28 @@ body::after {
     margin-right: 4px;
     margin-bottom: 4px;
   }
+ 
+
+  /* 2) контейнер вспышки: не даём ему расширять страницу */
   .trip-message {
-    inset: 0;
-    padding: 0 8vw;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0 5vw;
   }
 
+  /* 3) сам текст: разрешаем переносы и ломаем длинные слова/фразы */
   .trip-message .msg {
-    font-size: clamp(20px, 7vw, 36px); /* МЕНЬШЕ и стабильнее */
-    line-height: 1.15;
-    letter-spacing: 0.08em;
-    max-width: 100%;
-    text-align: center;
+    max-width: 90vw;
+    margin: 0 auto;
 
-    transform: none;          
-    white-space: normal;      
-    word-break: keep-all;
-    overflow-wrap: break-word;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    /* чуть мягче, чтобы длинные фразы влезали */
+    letter-spacing: 0.06em;
+    font-size: clamp(22px, 8vw, 64px);
+    text-align: center;
   }
 #back-btn {
     position: fixed !important;
