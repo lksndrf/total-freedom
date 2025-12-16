@@ -484,6 +484,15 @@ body::after {
 
 /* Мобилки */
 @media (max-width: 1025px) {
+  /* уменьшаем высоту затемнения под заголовком */
+  .page-header::before {
+    inset: -10px -24px; 
+  }
+
+  /* дополнительно можно чуть ужать сам хедер */
+  .page-header {
+    padding: 6px 12px 8px;
+  }
   /* убираем боковые затемнения и космический шум */
   body::before,
   body::after {
